@@ -1,12 +1,10 @@
+
 import type { Metadata } from 'next'
 import './globals.css'
 import "./data-tables-css.css";
 import "./satoshi.css";
+import { Providers } from './providers';
 
-export const metadata: Metadata = {
-  title: 'Admin AyurvedaIndia',
-  description: 'admin Panel',
-}
 
 export default function RootLayout({
   children,
@@ -15,7 +13,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body suppressHydrationWarning={true} >{children}</body>
+
+      <body suppressHydrationWarning={true} >
+        <Providers>
+          {children}
+        </Providers>
+      </body>
+
     </html>
   )
 }
