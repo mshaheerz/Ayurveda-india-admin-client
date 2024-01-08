@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import SidebarLinkGroup from "./SidebarLinkGroup";
 import Image from "next/image";
-import { BookHeart, BookTextIcon, Contact, GemIcon, GraduationCap, HardHat, HeartIcon, HeartOff, HeartPulse, LucideBookHeart, LucideHardHat, TentTree } from "lucide-react";
+import { BookTextIcon, Contact, GemIcon, GraduationCap, HeartPulse, TentTree } from "lucide-react";
 
 interface SidebarProps {
   sidebarOpen: boolean;

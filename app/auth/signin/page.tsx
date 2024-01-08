@@ -14,7 +14,7 @@ const SignIn: React.FC = () => {
     <>
 
 
-      <div className="  bg-white h-screen dark:border-strokedark dark:bg-boxdark">
+      <div className=" h-screen border-strokedark bg-boxdark">
         <div className="flex flex-wrap items-center">
           <div className="hidden w-full xl:block xl:w-1/2">
             <div className="py-17.5 px-26 text-center">
@@ -166,15 +166,15 @@ const SignIn: React.FC = () => {
             </div>
           </div>
 
-          <div className="w-full border-stroke dark:border-strokedark xl:w-1/2 xl:border-l-2">
+          <div className="w-full  border-strokedark xl:w-1/2 xl:border-l-2">
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
-              <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
+              <h2 className="mb-9 text-2xl font-bold text-white sm:text-title-xl2">
                 Sign In to Ayurveda India
               </h2>
 
               <form>
                 <div className="mb-4">
-                  <label className="mb-2.5 block font-medium text-black dark:text-white">
+                  <label className="mb-2.5 block font-medium text-white">
                     Email
                   </label>
                   <div className="relative">
@@ -205,7 +205,7 @@ const SignIn: React.FC = () => {
                 </div>
 
                 <div className="mb-6">
-                  <label className="mb-2.5 block font-medium text-black dark:text-white">
+                  <label className="mb-2.5 block font-medium text-white">
                     Password
                   </label>
                   <div className="relative">
@@ -284,14 +284,14 @@ const SignIn: React.FC = () => {
                   Sign in with Google
                 </button> */}
 
-                {/* <div className="mt-6 text-center">
+                <div className="mt-6 text-center">
                   <p>
-                    Don’t have any account?{" "}
-                    <Link href="/auth/signup" className="text-primary">
-                      Sign Up
+                    Forgot your?{" "}
+                    <Link href="/auth/forgot-password" className="text-primary">
+                      Password
                     </Link>
                   </p>
-                </div> */}
+                </div>
               </form>
             </div>
           </div>
