@@ -23,7 +23,7 @@ const ForgotPass: React.FC = () => {
               <h2 className="mb-9 text-2xl font-bold text-white sm:text-title-xl2">
                 Forgot password
               </h2>
-              <p className="pb-3 text-md">Enter the email address associated with your account and we'll send you a link to rest your password.</p>
+              <p className="pb-3 text-md">Enter the email address associated with your account and we&apos;ll send you a link to rest your password.</p>
 
               <form>
                 <div className="mb-4">
