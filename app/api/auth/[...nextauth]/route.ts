@@ -4,7 +4,7 @@ import NextAuth from "next-auth";
 import type { NextAuthOptions } from "next-auth";
 import { User } from "next-auth";
 
-export const authOptions: NextAuthOptions = {
+ const authOptions: NextAuthOptions = {
   // Configure one or more authentication providers
   providers: [
     // ...add more providers here
