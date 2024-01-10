@@ -4,6 +4,7 @@ import './globals.css'
 import "./data-tables-css.css";
 import "./satoshi.css";
 import { Providers } from './providers';
+import { Provider } from './Provider';
 
 
 export default function RootLayout({
@@ -15,9 +16,11 @@ export default function RootLayout({
     <html lang="en">
 
       <body suppressHydrationWarning={true} >
+        <Provider>
         <Providers>
           {children}
         </Providers>
+        </Provider>
       </body>
 
     </html>

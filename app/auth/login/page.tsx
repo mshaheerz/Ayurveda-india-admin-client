@@ -1,19 +1,40 @@
+
+"use client"
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
-export const metadata: Metadata = {
-  title: "Signin Page | Ayurveda india",
-  description: "This is Signin page for TailAdmin Next.js",
-  // other metadata
-};
+import { signIn } from "next-auth/react";
+import { useRef } from "react";
+// export const metadata: Metadata = {
+//   title: "Signin Page | Ayurveda india",
+//   description: "This is Signin page",
+//   // other metadata
+// };
 
-const SignIn: React.FC = () => {
+interface IProps {
+  searchParams?: { [key: string]: string | string[] | undefined };
+}
+
+const SignIn = ({ searchParams }: IProps) => {
+  const userName = useRef("");
+  const pass = useRef("");
+
+  const onSubmit = async () => {
+    const result = await signIn("credentials", {
+      username: userName.current,
+      password: pass.current,
+      redirect: true,
+      callbackUrl: "/admin",
+    });
+    console.log(result, "foooo")
+  };
+
+
+
   return (
     <>
-
-
       <div className=" h-screen border-strokedark bg-boxdark">
         <div className="flex flex-wrap items-center">
           <div className="hidden w-full xl:block xl:w-1/2">
@@ -179,6 +200,7 @@ const SignIn: React.FC = () => {
                   </label>
                   <div className="relative">
                     <input
+                      onChange={(e) => (userName.current = e.target.value)}
                       type="email"
                       placeholder="Enter your email"
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
@@ -210,6 +232,7 @@ const SignIn: React.FC = () => {
                   </label>
                   <div className="relative">
                     <input
+                      onChange={(e) => (pass.current = e.target.value)}
                       type="password"
                       placeholder="6+ Characters, 1 Capital letter"
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
@@ -240,7 +263,9 @@ const SignIn: React.FC = () => {
                 </div>
 
                 <div className="mb-5">
+                  {/* <button type="button" onClick={()=>signIn()}>test</button> */}
                   <input
+                    onClick={onSubmit}
                     type="submit"
                     value="Sign In"
                     className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
