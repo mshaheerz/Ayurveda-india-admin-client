@@ -47,7 +47,7 @@ function AddUserModal({ isOpen, onOpen, onOpenChange }: AddUserProps) {
                             </div>
 
                             <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
-                                <Input  labelPlacement="outside"  type="text" label="Full name" />
+                                <Input  endContent={<>(optional)</>} labelPlacement="outside"  type="text" label="Full name" />
                                 <Select
                                     label="Role"
                                     labelPlacement="outside" 
