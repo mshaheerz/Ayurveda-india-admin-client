@@ -18,7 +18,8 @@ import {
     Pagination,
     Selection,
     ChipProps,
-    SortDescriptor
+    SortDescriptor,
+    useDisclosure
 } from "@nextui-org/react";
 
 
@@ -29,6 +30,7 @@ import { VerticalDotsIcon } from "@/components/custom-icons/VerticalDotsIcon";
 import { ChevronDownIcon } from "@/components/custom-icons/ChevronDownIcon";
 import { SearchIcon } from "@/components/custom-icons/SearchIcon";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import AddUserModal from "./_components/AddUserModal";
 
 const statusColorMap: Record<string, ChipProps["color"]> = {
     active: "success",
@@ -41,6 +43,7 @@ const INITIAL_VISIBLE_COLUMNS = ["name", "role", "status", "actions"];
 type User = typeof users[0];
 
 export default function ManageUserPage() {
+    const {isOpen, onOpen, onOpenChange} = useDisclosure();
     const [filterValue, setFilterValue] = React.useState("");
     const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
     const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
@@ -177,6 +180,8 @@ export default function ManageUserPage() {
         setPage(1)
     }, [])
 
+
+
     const topContent = React.useMemo(() => {
         return (
             <div className="flex flex-col gap-4">
@@ -234,7 +239,7 @@ export default function ManageUserPage() {
                                 ))}
                             </DropdownMenu>
                         </Dropdown>
-                        <Button color="primary" endContent={<PlusIcon />}>
+                        <Button color="primary" onPress={onOpen} endContent={<PlusIcon />}>
                             Add New
                         </Button>
                     </div>
@@ -299,6 +304,7 @@ export default function ManageUserPage() {
         <>
         
             <Breadcrumb pageName="Manage users" />
+            <AddUserModal isOpen={isOpen} onOpen={onOpen}  onOpenChange={onOpenChange}/>
             <div>
             <Table
                 aria-label="Example table with custom cells, pagination and sorting"
