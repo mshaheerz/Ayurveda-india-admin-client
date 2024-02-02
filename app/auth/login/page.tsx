@@ -22,6 +22,7 @@ const SignIn = ({ searchParams }: IProps) => {
   const pass = useRef("");
 
   const onSubmit = async () => {
+    console.log(userName.current,pass.current,'fffffff')
     const result = await signIn("credentials", {
       username: userName.current,
       password: pass.current,
@@ -266,7 +267,7 @@ const SignIn = ({ searchParams }: IProps) => {
                   {/* <button type="button" onClick={()=>signIn()}>test</button> */}
                   <input
                     onClick={onSubmit}
-                    type="submit"
+                    type="button"
                     value="Sign In"
                     className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
                   />

@@ -21,30 +21,39 @@ import {
     SortDescriptor,
     useDisclosure
 } from "@nextui-org/react";
-import { columns, users, statusOptions } from "./data";
+import { columns, courses, statusOptions } from "./data";
 import { capitalize } from "@/lib/utils";
 import { PlusIcon } from "@/components/custom-icons/PlusIcon";
 import { VerticalDotsIcon } from "@/components/custom-icons/VerticalDotsIcon";
 import { ChevronDownIcon } from "@/components/custom-icons/ChevronDownIcon";
 import { SearchIcon } from "@/components/custom-icons/SearchIcon";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import AddUserModal from "./_components/AddUserModal";
 import axios from "@/lib/axios";
 import { useSession } from "next-auth/react";
+import AddCourseModal from "./_components/AddCourseModal";
+import { CheckIcon, CrossIcon, CrosshairIcon, XIcon } from "lucide-react";
 import { Slide, toast } from "react-toastify";
+
 
 //global variables
 const statusColorMap: Record<string, ChipProps["color"]> = {
     Active: "success",
     Inactive: "danger",
 };
-const INITIAL_VISIBLE_COLUMNS = ["email_id", "role", "status", "actions"];
-type User = typeof users[0];
+
+const publishedColorMap: Record<string, ChipProps["color"]> = {
+    published: "success",
+    notpublished: "danger",
+    
+}
+const INITIAL_VISIBLE_COLUMNS = ["name", "short_name", "duration", "course_price", "seats_available", "is_published", "actions"];
+type Course = typeof courses[0];
 
 
-//main component
-export default function ManageUserPage() {
 
+
+// main component
+export default function CoursePage() {
     const { data: session } = useSession()
     const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
     const [filterValue, setFilterValue] = React.useState("");
@@ -58,41 +67,37 @@ export default function ManageUserPage() {
     });
     const [formData, setFormData] = useState({}); // Your form data state
     const [mode, setMode] = useState('view'); // Default to view mode
-    const [users, setUsers] = useState([])
+    const [courses, setcourses] = useState([])
     const [refresh, setRefresh] = useState(false)
 
     useEffect(() => {
-        getUsers()
+        getCourse()
     }, [refresh]);
 
-    const getUsers = async () => {
-        console.log("iam worked")
+
+    //fetch course
+    const getCourse = async () => {
+        console.log(session?.user)
         try {
-            const { data } = await axios.get('/users/', {
+            const { data } = await axios.get('/course/', {
                 headers: {
                     Authorization: `Bearer ${session?.user.access_token}`
                 }
             })
-            const transformedUsers = data?.data?.map((user: any) => ({
-                ...user, // Spread all existing properties
-                roleId: user.role.id,
-                roleName: user.role.name,
-                role: undefined // Remove the original role object
-            }));
-            setUsers(transformedUsers)
+            setcourses(data.data)
+
         } catch (error) {
             console.log(error)
         }
     }
 
     // handle modal open view, edit
-    const handleModal = async (user: any, mod: string) => {
+    const handleModal = async (course: any, mod: string) => {
         if (mod === "view" || mod === "edit") {
             setMode(mod)
             try {
-                const { data } = await axios.get(`/users/${user.id}/`, { headers: { Authorization: `Bearer ${session?.user.access_token}` } })
+                const { data } = await axios.get(`/course/${course.id}/`, { headers: { Authorization: `Bearer ${session?.user.access_token}` } })
                 setFormData(data)
-                console.log(data,"foooo")
                 onOpen()
             } catch (error) {
                 console.log(error)
@@ -100,17 +105,16 @@ export default function ManageUserPage() {
         }
     }
 
-    //delete handler
+    //delete function 
     const handleDelete = async (id: string) => {
         try {
-            const { data } = await axios.delete(`/users/${id}/`, {
+            const { data } = await axios.delete(`/course/${id}/`, {
                 headers: {
                     Authorization: `Bearer ${session?.user.access_token}`
                 }
             })
-            console.log(data)
-            setRefresh((prev)=>!prev)
-            toast.success('Deleted successfully', {
+            setRefresh((prev) => !prev)
+            toast.success('Course Deleted ', {
                 position: "top-right",
                 autoClose: 5000,
                 hideProgressBar: true,
@@ -121,9 +125,11 @@ export default function ManageUserPage() {
                 theme: "dark",
                 transition: Slide,
             });
+           
         } catch (error) {
-            
-            toast.error('Something went wrong Please Try again', {
+            console.log(error)
+            setRefresh((prev)=>!prev)
+            toast.error('something went wrong', {
                 position: "top-right",
                 autoClose: 5000,
                 hideProgressBar: true,
@@ -138,10 +144,9 @@ export default function ManageUserPage() {
         }
     }
 
-
-    const handleUserStatus = async (id:string,status:string)=> {
+    const handleCourseStatus = async (id:string,status:string)=> {
         try {
-            const { data } = await axios.patch(`/users/${id}/`,{status:status}, {
+            const { data } = await axios.patch(`/course/${id}/`,{status:status}, {
                 headers: {
                     Authorization: `Bearer ${session?.user?.access_token}`
                 }
@@ -173,77 +178,100 @@ export default function ManageUserPage() {
             });
 
         }
-    }   
 
-    //table based components and states
+    }
+
+    //table related states and components
     const [page, setPage] = React.useState(1);
     const hasSearchFilter = Boolean(filterValue);
 
     const headerColumns = React.useMemo(() => {
         if (visibleColumns === "all") return columns;
+
         return columns.filter((column) => Array.from(visibleColumns).includes(column.uid));
     }, [visibleColumns]);
 
     const filteredItems = React.useMemo(() => {
-        let filteredUsers = [...users];
+        let filteredcourses = [...courses];
+
         if (hasSearchFilter) {
-            filteredUsers = filteredUsers.filter((user: User) =>
-                user?.email_id.toLowerCase().includes(filterValue.toLowerCase()),
+            filteredcourses = filteredcourses.filter((user: Course) =>
+                user?.name.toLowerCase().includes(filterValue.toLowerCase()),
             );
         }
         if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
-            filteredUsers = filteredUsers.filter((user: User) =>
+            filteredcourses = filteredcourses.filter((user: Course) =>
                 Array.from(statusFilter).includes(user.status),
             );
         }
 
-        return filteredUsers;
-    }, [users, filterValue, statusFilter]);
+        return filteredcourses;
+    }, [courses, filterValue, statusFilter]);
 
     const pages = Math.ceil(filteredItems.length / rowsPerPage);
+
     const items = React.useMemo(() => {
         const start = (page - 1) * rowsPerPage;
         const end = start + rowsPerPage;
+
         return filteredItems.slice(start, end);
     }, [page, filteredItems, rowsPerPage]);
 
     const sortedItems = React.useMemo(() => {
-        return [...items].sort((a: User, b: User) => {
-            const first = a[sortDescriptor.column as keyof User] as string;
-            const second = b[sortDescriptor.column as keyof User] as string;
+        return [...items].sort((a: Course, b: Course) => {
+            const first = a[sortDescriptor.column as keyof Course] as string;
+            const second = b[sortDescriptor.column as keyof Course] as string;
             const cmp = first < second ? -1 : first > second ? 1 : 0;
 
             return sortDescriptor.direction === "descending" ? -cmp : cmp;
         });
     }, [sortDescriptor, items]);
 
-    const renderCell = React.useCallback((user: User, columnKey: React.Key) => {
-        const cellValue = user[columnKey as keyof User];
+
+    const renderCell = React.useCallback((course: Course, columnKey: React.Key) => {
+        const cellValue = course[columnKey as keyof Course];
+
 
         switch (columnKey) {
-            case "email_id":
+            case "name":
                 return (
                     <User
-                        // avatarProps={{ radius: "lg", src: user.email_id }}
+                        avatarProps={{ radius: "lg", src: course.name }}
                         // description={user.email_id}
                         name={cellValue}
                     >
-                        {user.email_id}
+                        {course.name}
                     </User>
                 );
-            case "role":
+            case "short_name":
                 return (
                     <div className="flex flex-col">
                         <p className="text-bold text-small capitalize">{cellValue}</p>
-                        <p className="text-bold text-tiny capitalize text-default-400">{user.roleName || "no data"}</p>
+                        {/* <p className="text-bold text-tiny capitalize text-default-400">{user.short_name || "no data"}</p> */}
                     </div>
                 );
             case "status":
                 return (
-                    <Chip className="capitalize" color={statusColorMap[cellValue==1?'Active':'Inactive']} size="sm" variant="dot">
-                        {cellValue==1?'Active':'Inactive'}
+                    <Chip className="capitalize" color={statusColorMap[cellValue == 1 ? 'Active' : 'Inactive']} size="sm" variant="dot">
+                        {cellValue == 1 ? 'Active' : 'Inactive'}
                     </Chip>
                 );
+
+            case "is_published":
+                return (
+                    <Chip className="capitalize" color={publishedColorMap[cellValue?'published':'notpublished']} size="sm" variant="dot">
+                        {cellValue == 1 ? <CheckIcon color="green" /> : <XIcon color="red" />}
+                    </Chip>
+                )
+            case "duration":
+                return (
+                    <div className="flex flex-col">
+                    <p className="text-bold text-small capitalize">{cellValue}</p>
+                    <p className="text-bold text-tiny capitalize text-default-400">{course?.duration_type || "no data"}</p>
+                </div>
+                )
+
+
             case "actions":
                 return (
                     <div className="relative flex justify-center items-center gap-2">
@@ -254,15 +282,14 @@ export default function ManageUserPage() {
                                 </Button>
                             </DropdownTrigger>
                             <DropdownMenu>
-                                <DropdownItem onClick={() => handleModal(user, "view")}>View</DropdownItem>
-                                <DropdownItem onClick={() => handleModal(user, "edit")}>Edit</DropdownItem>
+                                <DropdownItem onClick={() => {handleModal(course, "view") }}>View</DropdownItem>
+                                <DropdownItem onClick={() => { handleModal(course, "edit")}}>Edit</DropdownItem>
                                 {
-                                    user.status===1 ? <DropdownItem onClick={() => handleUserStatus(user.id,'0')}> <h2 className="text-warning">Deactivate</h2></DropdownItem> 
-                                    :<DropdownItem onClick={() => handleUserStatus(user.id,'1')}> <h2 className="text-success">Activate</h2> </DropdownItem> 
+                                    course.status===1 ? <DropdownItem onClick={() => handleCourseStatus(course.id,'0')}> <h2 className="text-warning">Deactivate</h2></DropdownItem> 
+                                    :<DropdownItem onClick={() => handleCourseStatus(course.id,'1')}> <h2 className="text-success">Activate</h2> </DropdownItem> 
 
                                 }
-                                
-                                <DropdownItem onClick={() => handleDelete(user.id)}><h2 className="text-danger">Delete</h2></DropdownItem>
+                                <DropdownItem onClick={() => handleDelete(course.id)}>Delete</DropdownItem>
                             </DropdownMenu>
                         </Dropdown>
                     </div>
@@ -304,13 +331,13 @@ export default function ManageUserPage() {
     }, [])
 
 
+
     const topContent = React.useMemo(() => {
         return (
             <div className="flex flex-col gap-4">
                 <div className="flex justify-between  gap-3 items-end">
                     <Input
                         isClearable
-
                         className="w-full  sm:max-w-[44%]"
                         placeholder="Search by name..."
                         startContent={<SearchIcon />}
@@ -361,36 +388,39 @@ export default function ManageUserPage() {
                                 ))}
                             </DropdownMenu>
                         </Dropdown>
-                        <Button color="primary" onPress={()=>{
-                            setFormData({
-                                    "email_id": "",
-                                    "phone_number": "",
-                                    "description": "",
-                                    "first_name": "",
-                                    "last_name": "",
-                                    "country_code": "",
-                                    "address_line_1": "",
-                                    "address_line_2": "",
-                                    "country": "",
-                                    "state": "",
-                                    "city": "",
-                                    "zip_code": "",
-                                    "profile_image": "",
-                                    "status": 1,
-                                    "role": {
-                                        "id": "",
-                                        "name": ""
-                                    }
-                            })
+                        <Button color="primary" onPress={() => {
                             setMode("add")
+                            setFormData({
+                                name: "",
+                                short_name: "",
+                                description: "",
+                                location: "",
+                                duration: "",
+                                durationType: "",
+                                seats_available: "",
+                                actual_course_price: "",
+                                practicals: [],
+                                modules: [],
+                                offer_persentage: "",
+                                timeline_type: "",
+                                course_modules: [],
+                                course_practicals: [],
+                                timeline: [],
+                                start_time_morning: "",
+                                end_time_morning: "",
+                                start_time_afternoon: "",
+                                end_time_afternoon: "",
+
+                            })
                             onOpen()
-                            }} endContent={<PlusIcon />}>
+
+                        }} endContent={<PlusIcon />}>
                             Add New
                         </Button>
                     </div>
                 </div>
                 <div className="flex justify-between items-center">
-                    <span className="text-default-400 text-small">Total {users?.length} users</span>
+                    <span className="text-default-400 text-small">Total {courses?.length} Courses</span>
                     <label className="flex items-center text-default-400 text-small">
                         Rows per page:
                         <select
@@ -411,7 +441,7 @@ export default function ManageUserPage() {
         visibleColumns,
         onSearchChange,
         onRowsPerPageChange,
-        users.length,
+        courses.length,
         hasSearchFilter,
     ]);
 
@@ -445,10 +475,13 @@ export default function ManageUserPage() {
         );
     }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
+
+
+    //main component return
     return (
         <>
-            <Breadcrumb pageName="Manage users" />
-            <AddUserModal isOpen={isOpen} onOpen={onOpen} onOpenChange={onOpenChange} token={session?.user.access_token} refresh={refresh} setRefresh={setRefresh} onClose={onClose} mode={mode} initialData={formData} />
+            <Breadcrumb pageName="Courses" />
+            <AddCourseModal isOpen={isOpen} onOpen={onOpen} onOpenChange={onOpenChange} token={session?.user.access_token} refresh={refresh} setRefresh={setRefresh} onClose={onClose} mode={mode} initialData={formData} setInitialData={setFormData} />
             <div>
                 <Table
                     aria-label="Example table with custom cells, pagination and sorting"
@@ -477,7 +510,7 @@ export default function ManageUserPage() {
                             </TableColumn>
                         )}
                     </TableHeader>
-                    <TableBody emptyContent={"No users found"} items={sortedItems}>
+                    <TableBody emptyContent={"No courses found"} items={sortedItems}>
                         {(item: any) => (
                             <TableRow key={item.id}>
                                 {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}

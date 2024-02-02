@@ -37,11 +37,11 @@ const DropdownUser = () => {
 
 
   const fetchUserProfile = async ()=> {
-    const res = await fetch(`http://localhost:8000/user/${session?.user.userName}`,{
+    const res = await fetch(`http://localhost:8000/user/${session?.user.userId}`,{
         method:"GET",
         headers:{
             "Content-Type":"application/json",
-            Authorization: `bearer ${session?.user.accessToken}`
+            Authorization: `bearer ${session?.user.access_token}`
         }
     })
   }
@@ -56,7 +56,7 @@ const DropdownUser = () => {
       >
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black dark:text-white">
-            {session?.user.userName}
+            {session?.user.email_id}
           </span>
           <span className="block text-xs">Super Admin</span>
         </span>

@@ -1,62 +1,147 @@
-import React from "react";
+"use client"
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { Metadata } from "next";
-export const metadata: Metadata = {
-  title: "Signin Page | Ayurveda india",
-  description: "This is Signin page for TailAdmin Next.js",
-  // other metadata
-};
+import OtpInput from 'react-otp-input';
+import axios from "@/lib/axios";
+import { Button } from "@nextui-org/react";
+import ResetPass from "../_reset/ResetPass";
+
 
 const ForgotPass: React.FC = () => {
+
+
+  const [formHasUnsavedChanges, setformHasUnsavedChanges] = useState(true)
+  useEffect(() => {
+    const handleBeforeUnload = (event:any) => {
+      const formHasUnsavedChanges = true;
+      
+      if (formHasUnsavedChanges) {
+        const message = 'You have unsaved changes. Are you sure you want to leave?';
+        event.returnValue = message; // Standard for most browsers
+        return message; // For some older browsers
+      }
+    };
+
+    // Attach the event listener when the component mounts
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Detach the event listener when the component unmounts
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, []); // Empty dependency array ensures the effect runs only once
+
+  const [email, setEmail] = useState("")
+  const [otp, setOtp] = useState('');
+  const [isOtp, setIsOtp] = useState(false)
+  const [isResetPass, setIsResetPass] = useState(false)
+
+  const handleSubmit = async (e: any) => {
+    try {
+      e.preventDefault()
+      const formdata: any = new FormData()
+      formdata.append("email_id", email)
+      const { data } = await axios.post('/forgetpassword/', formdata)
+      console.log(data)
+      setIsOtp(true)
+    } catch (error) {
+
+    }
+  }
+
+  const verifyOtp = async () => {
+    try {
+      const formdata:any = new FormData()
+      formdata.append("email_id", email)
+      formdata.append("otp",otp)
+      console.log(otp)
+      const {data} = await axios.post('/otp_verification/',formdata)
+      setIsResetPass(true)
+
+    } catch (error) {
+        console.log(error)
+    }
+  }
+
+  if(isResetPass) return (
+  <ResetPass reset={setformHasUnsavedChanges} email={email} />
+  )
   return (
     <>
 
 
       <div className="   dark:border-strokedark bg-boxdark">
         <div className="flex flex-wrap  h-screen  items-center justify-center">
-         
+
 
           <div className="w-full   md:w-1/2 border rounded-3xl bg-[#272729]">
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
               <h2 className="mb-9 text-2xl font-bold text-white sm:text-title-xl2">
                 Forgot password
               </h2>
-              <p className="pb-3 text-md">Enter the email address associated with your account and we&apos;ll send you a link to rest your password.</p>
 
-              <form>
-                <div className="mb-4">
-                  <label className="mb-2.5 block font-medium text-white">
-                    Email
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="email"
-                      placeholder="Enter your email"
-                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                    />
 
-                    <span className="absolute right-4 top-4">
-                      <svg
-                        className="fill-current"
-                        width="22"
-                        height="22"
-                        viewBox="0 0 22 22"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <g opacity="0.5">
-                          <path
-                            d="M19.2516 3.30005H2.75156C1.58281 3.30005 0.585938 4.26255 0.585938 5.46567V16.6032C0.585938 17.7719 1.54844 18.7688 2.75156 18.7688H19.2516C20.4203 18.7688 21.4172 17.8063 21.4172 16.6032V5.4313C21.4172 4.26255 20.4203 3.30005 19.2516 3.30005ZM19.2516 4.84692C19.2859 4.84692 19.3203 4.84692 19.3547 4.84692L11.0016 10.2094L2.64844 4.84692C2.68281 4.84692 2.71719 4.84692 2.75156 4.84692H19.2516ZM19.2516 17.1532H2.75156C2.40781 17.1532 2.13281 16.8782 2.13281 16.5344V6.35942L10.1766 11.5157C10.4172 11.6875 10.6922 11.7563 10.9672 11.7563C11.2422 11.7563 11.5172 11.6875 11.7578 11.5157L19.8016 6.35942V16.5688C19.8703 16.9125 19.5953 17.1532 19.2516 17.1532Z"
-                            fill=""
-                          />
-                        </g>
-                      </svg>
-                    </span>
-                  </div>
-                </div>
+              <p className="pb-3 text-md">{isOtp ? `Otp are sended your email address ${email} Please Enter 6 digit otp` : "Enter the email address associated with your account and we'll send you a Otp."}</p>
 
+              <form onSubmit={handleSubmit}>
+                {
+                  !isOtp && (
+                    <div className="mb-4">
+                      <label className="mb-2.5 block font-medium text-white">
+                        Email
+                      </label>
+                      <div className="relative">
+                        <input
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          type="email"
+                          placeholder="Enter your email"
+                          className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                        />
+
+                        <span className="absolute right-4 top-4">
+                          <svg
+                            className="fill-current"
+                            width="22"
+                            height="22"
+                            viewBox="0 0 22 22"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <g opacity="0.5">
+                              <path
+                                d="M19.2516 3.30005H2.75156C1.58281 3.30005 0.585938 4.26255 0.585938 5.46567V16.6032C0.585938 17.7719 1.54844 18.7688 2.75156 18.7688H19.2516C20.4203 18.7688 21.4172 17.8063 21.4172 16.6032V5.4313C21.4172 4.26255 20.4203 3.30005 19.2516 3.30005ZM19.2516 4.84692C19.2859 4.84692 19.3203 4.84692 19.3547 4.84692L11.0016 10.2094L2.64844 4.84692C2.68281 4.84692 2.71719 4.84692 2.75156 4.84692H19.2516ZM19.2516 17.1532H2.75156C2.40781 17.1532 2.13281 16.8782 2.13281 16.5344V6.35942L10.1766 11.5157C10.4172 11.6875 10.6922 11.7563 10.9672 11.7563C11.2422 11.7563 11.5172 11.6875 11.7578 11.5157L19.8016 6.35942V16.5688C19.8703 16.9125 19.5953 17.1532 19.2516 17.1532Z"
+                                fill=""
+                              />
+                            </g>
+                          </svg>
+                        </span>
+                      </div>
+                    </div>
+                  )
+                }
+
+                {
+                  isOtp && (
+                    <div className="flex items-center justify-center">
+                      <div>
+                        <OtpInput
+                          value={otp}
+                          onChange={setOtp}
+                          numInputs={6}
+                          inputStyle={{ borderRadius: "10px", width: "50px", height: "50px" }}
+                          renderSeparator={<span>-</span>}
+                          renderInput={(props) => <input {...props} />}
+                        />
+                        </div>
+                    </div>
+                  )
+                }
+            {
+              !isOtp && (
                 <div className="mb-5">
                   <input
                     type="submit"
@@ -64,6 +149,16 @@ const ForgotPass: React.FC = () => {
                     className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
                   />
                 </div>
+              )
+            }
+
+            {isOtp && (
+              <div className="flex justify-center items-center mt-12">
+                <Button onClick={verifyOtp} >Verify</Button>
+              </div>
+            )}
+
+                
 
                 {/* <button className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-50 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-50">
                   <span>
@@ -105,7 +200,7 @@ const ForgotPass: React.FC = () => {
                 <div className="mt-6 text-center">
                   <p>
                     Back to {" "}
-                    <Link href="/auth/signin" className="text-primary">
+                    <Link href="/auth/login" className="text-primary">
                       Login
                     </Link>
                   </p>

@@ -6,10 +6,10 @@ import { NextResponse } from "next/server"
 export default withAuth(
     function middleware(req) {
 
-        if(req.nextUrl.pathname.startsWith("/admin") && req.nextauth.token?.role!=="admin")
+        if(req.nextUrl.pathname.startsWith("/admin") && req.nextauth.token?.roleName!=="Admin")
         return NextResponse.rewrite(new URL("/auth/login?message=you are not Authorized!",req.url))
 
-        if(req.nextUrl.pathname.startsWith("/user") && req.nextauth.token?.role!=="user")
+        if(req.nextUrl.pathname.startsWith("/user") && req.nextauth.token?.roleName!=="user")
         return NextResponse.rewrite(new URL("/auth/login?message= you are not Authorized!",req.url))
     },
     {

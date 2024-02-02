@@ -5,6 +5,8 @@ import "./data-tables-css.css";
 import "./satoshi.css";
 import { Providers } from './providers';
 import { Provider } from './Provider';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 export default function RootLayout({
@@ -14,12 +16,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-
       <body suppressHydrationWarning={true} >
         <Provider>
-        <Providers>
-          {children}
-        </Providers>
+          <Providers>
+            {children}
+            <ToastContainer stacked />
+          </Providers>
         </Provider>
       </body>
 
