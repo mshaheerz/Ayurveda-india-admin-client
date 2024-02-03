@@ -725,7 +725,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                                 <div className="flex flex-wrap gap-3 mt-3 flex-1">
                                                     {initialCourseModules.map((dat: { name: string, description: string }, index: number) => (
 
-                                                        <div className="w-full min-w-[200px] max-w-fit border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100">
+                                                        <div key={index} className="w-full min-w-[200px] max-w-fit border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100">
                                                             <Listbox
                                                                 aria-label="Actions"
 
