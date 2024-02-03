@@ -45,7 +45,7 @@ const MainDash: React.FC = () => {
                 <CardDataStats title="Bookings" total="10" rate="0.43%" levelUp>
                 <BookOpenText width={22} height={20} className="stroke-primary dark:stroke-white"  />
                 </CardDataStats>
-                <CardDataStats title="Course" total={courseCount||0} rate="new 2" levelUp>
+                <CardDataStats title="Course" total={courseCount||"0"} rate="new 2" levelUp>
                 <Pencil width={22} height={20} className="stroke-primary dark:stroke-white"  />
                 </CardDataStats>
                 <CardDataStats title="Experts" total="21" rate="new 4" levelUp>
