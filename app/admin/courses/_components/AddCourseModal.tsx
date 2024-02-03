@@ -5,6 +5,8 @@ import PhotosUploader from "./PhotoUploader";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import axios from "@/lib/axios";
 import { Slide, toast } from "react-toastify";
+import PhotosEditor from "./PhotoEditor";
+import ViewImages from "./ViewImages";
 
 interface AddCourseProps {
     isOpen: boolean;
@@ -131,11 +133,13 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
             setStartTimeAfternoon("")
             setEndTimeAfternoon("")
             reset({});
+           
 
         }
 
         if (mode == "edit") {
             reset(initialData);
+            setAddedPhotos([])
 
             setPractical_Modules(initialPracticalModules)
             setTheory_Modules(initialCourseModules)
@@ -148,6 +152,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
         if (mode == "view") {
             setPractical_Modules([])
+            setAddedPhotos([])
             setTheory_Modules([])
             setTimeLineType(initialData?.timeline?.[0]?.timeline_type)
             setStartTimeMorning(initialData?.timeline?.[0]?.start_time_morning)
@@ -179,10 +184,10 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
             "course_practicals": JSON.stringify(intpr),
             "course_modules": JSON.stringify(intprs),
             "timeline_type": timeLineType,
-            "start_time_morning": startTimeMorning || null,
-            "end_time_morning": endTimeMorning || null,
-            "start_time_afternoon": startTimeAfternoon || null,
-            "end_time_afternoon": endTimeAfternoon || null,
+            "start_time_morning": startTimeMorning || "",
+            "end_time_morning": endTimeMorning || "",
+            "start_time_afternoon": startTimeAfternoon || "",
+            "end_time_afternoon": endTimeAfternoon || "",
         }
         console.log(forms)
         // return ;
@@ -193,9 +198,13 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                 formData.append(key, forms[key]);
             });
 
+            addedPhotos.forEach((image, index) => {
+                formData.append(`file${index + 1}`, image);
+             }); 
+             console.log(addedPhotos)
 
             try {
-                const { data } = await axios.put(`/course/${initialData.id}/`, forms,
+                const { data } = await axios.put(`/course/${initialData.id}/`, formData,
                     {
                         headers:
                         {
@@ -247,22 +256,12 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
             console.log(addedPhotos, "added photos")
 
-            addedPhotos.forEach((fileData, index) => {
-                const base64StringWithoutPrefix = fileData.url.split(',')[1];
-                const blob = base64ToBlob(base64StringWithoutPrefix, 'image/png');
-
-                // Create a File object
-                const file = new File([blob], fileData.file, { type: 'image/png' });
-                formData.append(`photo${index + 1}`, file);
-                formData.append(`description${index + 1}`, 'Some description');
-                console.log(file, "file looped");
-            });
-            console.log(formData, "form data")
-            console.log(data, "dataaaa")
-
-
+            addedPhotos.forEach((image, index) => {
+               formData.append(`file${index + 1}`, image);
+            }); 
+   
             try {
-                const { data } = await axios.post('/course/', forms,
+                const { data } = await axios.post('/course/', formData,
                     {
                         headers:
                         {
@@ -310,24 +309,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
     };
 
-    const base64ToBlob = (base64String, mimeType) => {
-        const byteCharacters = atob(base64String);
-        const byteArrays = [];
 
-        for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-            const slice = byteCharacters.slice(offset, offset + 512);
-
-            const byteNumbers = new Array(slice.length);
-            for (let i = 0; i < slice.length; i++) {
-                byteNumbers[i] = slice.charCodeAt(i);
-            }
-
-            const byteArray = new Uint8Array(byteNumbers);
-            byteArrays.push(byteArray);
-        }
-
-        return new Blob(byteArrays, { type: mimeType });
-    };
 
 
     // Function to show/hide time inputs based on timeline_type
@@ -628,10 +610,13 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             label="Duration Type"
                                             labelPlacement="outside"
                                             {...register("duration_type", { required: true })}
-                                        >
+                                        >   
+                                            <SelectItem key={"day"} value="day">day</SelectItem>
+                                            <SelectItem key={"days"} value="days">days</SelectItem>
+                                            <SelectItem key={"week"} value="week">week</SelectItem>
                                             <SelectItem key={"weeks"} value="weeks">Weeks</SelectItem>
-                                            <SelectItem key={"month"} value="month">Months</SelectItem>
-                                            <SelectItem key={"days"} value="days">Days</SelectItem>
+                                            <SelectItem key={"month"} value="month">month</SelectItem>
+                                            <SelectItem key={"months"} value="months">months</SelectItem>
                                             {/* Add other options as needed */}
                                         </Select>
 
@@ -664,17 +649,18 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             type="number"
                                             {...register("offer_persentage", { required: true })}
                                         />
+                                      
                                         {/* Timeline Type */}
                                         <Select
                                             isDisabled={mode === 'view'}
                                             errorMessage={errors.timeline_type && "Timeline Type is required"}
-                                            defaultSelectedKeys={[timeLineType]}
+                                            defaultSelectedKeys={[timeLineType || "full_day" ]}
                                             label="Timeline Type"
                                             onChange={(e) => setTimeLineType(e.target.value)}
                                             labelPlacement="outside"
                                             required={true}
                                         >
-                                            <SelectItem key="full_day" value="full_day">Full Day</SelectItem>
+                                            <SelectItem  key="full_day" value="full_day">Full Day</SelectItem>
                                             <SelectItem key="half_day" value="half_day">Half Day</SelectItem>
                                         </Select>
                                         {/* Render time inputs based on timeline_type */}
@@ -945,15 +931,42 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                                 </div>
                                             ))}
                                         </div>
+ {
+                                            mode === "edit" && <>
+                                                <div className="pb-12">
+                                                    <h1 className="text-black dark:text-white font-bold ">
+                                                      Edit Images
+                                                    </h1>
 
+                                                    <PhotosEditor setRefresh={setRefresh} authToken={token} images={initialData?.images} />
+                                                </div>
+
+                                            </>
+                                        }
                                         <div>
                                             <h1 className="text-black dark:text-white font-bold">
                                                 Upload Images
                                             </h1>
                                         </div>
 
+
+                                       
+
                                         <div className="flex items-center justify-center">
-                                            <PhotosUploader addedPhotos={addedPhotos} setAddedPhotos={setAddedPhotos} register={register} />
+                                            {
+                                                mode === "add"  && <PhotosUploader addedPhotos={addedPhotos} setAddedPhotos={setAddedPhotos} register={register} />
+                                            } 
+
+                                            {
+                                                mode==="edit" && <PhotosUploader addedPhotos={addedPhotos} setAddedPhotos={setAddedPhotos} register={register} />
+                                            }
+
+
+
+                                            {
+                                                mode === "view" && <ViewImages imageStore={initialData?.images} />
+                                            }
+
                                         </div>
 
                                         {/* Button to add new module */}

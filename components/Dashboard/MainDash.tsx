@@ -1,5 +1,5 @@
-"use client";
-import React from "react";
+"use client"
+import React, { useLayoutEffect, useState } from "react";
 // import ChartOne from "../Charts/ChartOne";
 // import ChartThree from "../Charts/ChartThree";
 // import ChartTwo from "../Charts/ChartTwo";
@@ -11,11 +11,33 @@ import CardDataStats from "../CardDataStats";
 // without this the component renders on server and throws an error
 import dynamic from "next/dynamic";
 import { BookOpenText, Calculator, GraduationCapIcon, Pencil } from "lucide-react";
+import axios from "@/lib/axios";
+import { useSession } from "next-auth/react";
 // const MapOne = dynamic(() => import("../Maps/MapOne"), {
 //     ssr: false,
 // });
 
+
+
+
+
+
 const MainDash: React.FC = () => {
+    const [courseCount, setCourseCount] = useState("")
+
+    useLayoutEffect(()=>{
+        getCounts()
+    },[])
+
+    const getCounts = async()=> {
+        try {
+            const {data} = await axios.get('/course/course_count/',{headers:{Authorization:`Bearer ${session?.user?.access_token}`}});
+            setCourseCount(data.course_count)
+        } catch (error) {
+            
+        }
+    }
+    const { data: session } = useSession()
     return (
         <>
 
@@ -23,7 +45,7 @@ const MainDash: React.FC = () => {
                 <CardDataStats title="Bookings" total="10" rate="0.43%" levelUp>
                 <BookOpenText width={22} height={20} className="stroke-primary dark:stroke-white"  />
                 </CardDataStats>
-                <CardDataStats title="Course" total="5" rate="new 2" levelUp>
+                <CardDataStats title="Course" total={courseCount||0} rate="new 2" levelUp>
                 <Pencil width={22} height={20} className="stroke-primary dark:stroke-white"  />
                 </CardDataStats>
                 <CardDataStats title="Experts" total="21" rate="new 4" levelUp>

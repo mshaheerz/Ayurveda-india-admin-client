@@ -5,11 +5,10 @@ import axios from 'axios';
 interface PhotoProps{
     addedPhotos:any,
     setAddedPhotos:any,
-    register:any
+    register?:any
 }
-function PhotosUploader({ addedPhotos, setAddedPhotos,register }:PhotoProps) {
+function PhotosUploader({ addedPhotos, setAddedPhotos }:PhotoProps) {
 
-    const [photoLink, setPhotoLink] = useState("");
 
 
     function uploadPhoto(e: React.ChangeEvent<HTMLInputElement>) {
@@ -19,26 +18,8 @@ function PhotosUploader({ addedPhotos, setAddedPhotos,register }:PhotoProps) {
             return;
           }
       
-        // for (let i = 0; i < files.length; i++) {
-        //   data.append('photos', files[i]);
-        // }
         const newImages = Array.from(files);
         setAddedPhotos([...addedPhotos,...newImages])
-        // const newAddedPhotos = [...addedPhotos];
-      
-        // Read each file as data URL
-        // for (let i = 0; i < files.length; i++) {
-        //   const reader = new FileReader();
-      
-        //   reader.onload = (event:any) => {
-        //     const imageUrl = event.target.result;
-        //     newAddedPhotos.push({ file: files[i], url: imageUrl });
-        //     setAddedPhotos(newAddedPhotos);
-        //   };
-      
-        //   // Read each file as data URL
-        //   reader.readAsDataURL(files[i]);
-        // }
       }
 
 
