@@ -531,9 +531,9 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                 <HeaderComponent />
 
                                 <ModalBody style={{ overflowY: 'scroll' }}>
-                                    <button className="p-6 bg-white text-black" onClick={() => {
+                                    {/* <button className="p-6 bg-white text-black" onClick={() => {
                                         console.log({ timeLineType, endTimeAfternoon, startTimeMorning, endTimeMorning })
-                                    }}>Test</button>
+                                    }}>Test</button> */}
                                     <div className="ml-auto">
                                         {mode === "view" && (
                                             <>
@@ -725,15 +725,15 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                                 <div className="flex flex-wrap gap-3 mt-3 flex-1">
                                                     {initialCourseModules.map((dat: { name: string, description: string }, index: number) => (
 
-                                                        <div key={index} className="w-full min-w-[200px] max-w-fit border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100">
+                                                        <div key={index} className="w-full min-w-[250px] max-w-fit border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100">
                                                             <Listbox
                                                                 aria-label="Actions"
 
-                                                                onAction={(key) => alert(key)}
+                                                                // onAction={(key) => alert(key)}
                                                             >
                                                                 <ListboxSection title={`module ${index + 1}`} showDivider>
-                                                                    <ListboxItem key="new">Name: {dat?.name}</ListboxItem>
-                                                                    <ListboxItem key="copy">Description: {dat?.description}</ListboxItem>
+                                                                    <ListboxItem key="new" className="text-[#d2d2d2]">Name: {dat?.name}</ListboxItem>
+                                                                    <ListboxItem className="text-[#d2d2d2]" key="copy">Description: {dat?.description}</ListboxItem>
                                                                 </ListboxSection>
                                                             </Listbox>
                                                         </div>
@@ -859,15 +859,15 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                                 <div className="flex flex-wrap gap-3 mt-3 flex-1">
                                                     {initialPracticalModules.map((dat: { name: string, description: string }, index: number) => (
 
-                                                        <div key={index} className="w-full min-w-[200px] max-w-fit border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100">
+                                                        <div key={index} className="w-full min-w-[250px] max-w-fit border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100">
                                                             <Listbox
                                                                 aria-label="Actions"
 
                                                                 onAction={(key) => alert(key)}
                                                             >
                                                                 <ListboxSection title={`module ${index + 1}`} showDivider>
-                                                                    <ListboxItem key="new">Name: {dat?.name}</ListboxItem>
-                                                                    <ListboxItem key="copy">Description: {dat?.description}</ListboxItem>
+                                                                    <ListboxItem className="text-[#d2d2d2] " key="new">Name: {dat?.name}</ListboxItem>
+                                                                    <ListboxItem className="text-[#d2d2d2]" key="copy">Description: {dat?.description}</ListboxItem>
                                                                 </ListboxSection>
                                                             </Listbox>
                                                         </div>

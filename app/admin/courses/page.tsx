@@ -44,9 +44,9 @@ const statusColorMap: Record<string, ChipProps["color"]> = {
 const publishedColorMap: Record<string, ChipProps["color"]> = {
     published: "success",
     notpublished: "danger",
-    
+
 }
-const INITIAL_VISIBLE_COLUMNS = ["name", "short_name", "duration", "course_price", "seats_available", "is_published", "actions"];
+const INITIAL_VISIBLE_COLUMNS = ["name", "short_name", "duration", "course_price", "seats_available", "is_published", "status"];
 type Course = typeof courses[0];
 
 
@@ -60,7 +60,7 @@ export default function CoursePage() {
     const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
     const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
     const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
-    const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
         column: "age",
         direction: "ascending",
@@ -69,21 +69,28 @@ export default function CoursePage() {
     const [mode, setMode] = useState('view'); // Default to view mode
     const [courses, setcourses] = useState([])
     const [refresh, setRefresh] = useState(false)
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalPage, setTotalPages] = useState(1)
+    const [totalCount, setTotalCount] = useState(0)
 
     useEffect(() => {
         getCourse()
-    }, [refresh]);
+    }, [refresh, currentPage]);
 
 
     //fetch course
     const getCourse = async () => {
         console.log(session?.user)
         try {
-            const { data } = await axios.get('/course/', {
+            const { data } = await axios.get(`/course/?page=${currentPage}`, {
                 headers: {
                     Authorization: `Bearer ${session?.user.access_token}`
                 }
             })
+
+            setCurrentPage(data.current_page)
+            setTotalCount(data.total)
+            setTotalPages(data.total_pages)
             setcourses(data.data)
 
         } catch (error) {
@@ -125,10 +132,10 @@ export default function CoursePage() {
                 theme: "dark",
                 transition: Slide,
             });
-           
+
         } catch (error) {
             console.log(error)
-            setRefresh((prev)=>!prev)
+            setRefresh((prev) => !prev)
             toast.error('something went wrong', {
                 position: "top-right",
                 autoClose: 5000,
@@ -144,15 +151,15 @@ export default function CoursePage() {
         }
     }
 
-    const handleCourseStatus = async (id:string,status:string)=> {
+    const handleCourseStatus = async (id: string, status: string) => {
         try {
-            const { data } = await axios.patch(`/course/${id}/`,{status:status}, {
+            const { data } = await axios.patch(`/course/${id}/`, { status: status }, {
                 headers: {
                     Authorization: `Bearer ${session?.user?.access_token}`
                 }
             })
             console.log(data)
-            setRefresh((prev)=>!prev)
+            setRefresh((prev) => !prev)
             toast.success('Status changed successfully', {
                 position: "top-right",
                 autoClose: 5000,
@@ -194,16 +201,17 @@ export default function CoursePage() {
     const filteredItems = React.useMemo(() => {
         let filteredcourses = [...courses];
 
-        if (hasSearchFilter) {
-            filteredcourses = filteredcourses.filter((user: Course) =>
-                user?.name.toLowerCase().includes(filterValue.toLowerCase()),
-            );
+        if (filterValue.length == 0) {
+            // filteredcourses = filteredcourses.filter((user: Course) =>
+            //     user?.name.toLowerCase().includes(filterValue.toLowerCase()),
+            // );
+            setRefresh((prev) => !prev)
         }
-        if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
-            filteredcourses = filteredcourses.filter((user: Course) =>
-                Array.from(statusFilter).includes(user.status),
-            );
-        }
+        // if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
+        //     filteredcourses = filteredcourses.filter((user: Course) =>
+        //         Array.from(statusFilter).includes(user.status),
+        //     );
+        // }
 
         return filteredcourses;
     }, [courses, filterValue, statusFilter]);
@@ -236,11 +244,13 @@ export default function CoursePage() {
             case "name":
                 return (
                     <User
-                        avatarProps={{ radius: "lg", src: course.name }}
+                  
+
+                        // avatarProps={{ radius: "lg",alt:"ADK" }}
                         // description={user.email_id}
                         name={cellValue}
                     >
-                        {course.name}
+                        {course.short_name}
                     </User>
                 );
             case "short_name":
@@ -252,74 +262,102 @@ export default function CoursePage() {
                 );
             case "status":
                 return (
-                    <Chip className="capitalize" color={statusColorMap[cellValue == 1 ? 'Active' : 'Inactive']} size="sm" variant="dot">
-                        {cellValue == 1 ? 'Active' : 'Inactive'}
-                    </Chip>
+                    <div className="flex">
+
+
+                        <Chip className="capitalize" color={statusColorMap[cellValue == 1 ? 'Active' : 'Inactive']} size="sm" variant="dot">
+                            {cellValue == 1 ? 'Active' : 'Inactive'}
+                        </Chip>
+                        <div className="relative flex justify-center items-center gap-2">
+                            <Dropdown>
+                                <DropdownTrigger>
+                                    <Button isIconOnly size="sm" variant="light">
+                                        <VerticalDotsIcon className="text-default-300" />
+                                    </Button>
+                                </DropdownTrigger>
+                                <DropdownMenu>
+                                    <DropdownItem onClick={() => { handleModal(course, "view") }}>View</DropdownItem>
+                                    <DropdownItem onClick={() => { handleModal(course, "edit") }}>Edit</DropdownItem>
+                                    {
+                                        course.status === 1 ? <DropdownItem onClick={() => handleCourseStatus(course.id, '0')}> <h2 className="text-warning">Deactivate</h2></DropdownItem>
+                                            : <DropdownItem onClick={() => handleCourseStatus(course.id, '1')}> <h2 className="text-success">Activate</h2> </DropdownItem>
+
+                                    }
+                                    <DropdownItem onClick={() => handleDelete(course.id)}>Delete</DropdownItem>
+                                </DropdownMenu>
+                            </Dropdown>
+                        </div>
+                    </div>
                 );
 
             case "is_published":
                 return (
-                    <Chip className="capitalize" color={publishedColorMap[cellValue?'published':'notpublished']} size="sm" variant="dot">
-                        {cellValue == 1 ? <CheckIcon color="green" /> : <XIcon color="red" />}
+                    <Chip className="capitalize" color={publishedColorMap[cellValue ? 'published' : 'notpublished']} size="sm" variant="dot">
+                        {cellValue == 1 ? "Published" : "Not published"}
                     </Chip>
                 )
             case "duration":
                 return (
                     <div className="flex flex-col">
-                    <p className="text-bold text-small capitalize">{cellValue}</p>
-                    <p className="text-bold text-tiny capitalize text-default-400">{course?.duration_type || "no data"}</p>
-                </div>
+                        <p className="text-bold text-small capitalize">{cellValue} {course?.duration_type || "no data"}</p>
+
+                    </div>
+                )
+
+            case "course_price":
+                return (
+                    <div className="flex flex-col">
+                        <p className="text-bold text-small capitalize">{parseFloat(course.course_price).toFixed(2)} </p>
+
+                    </div>
                 )
 
 
-            case "actions":
-                return (
-                    <div className="relative flex justify-center items-center gap-2">
-                        <Dropdown>
-                            <DropdownTrigger>
-                                <Button isIconOnly size="sm" variant="light">
-                                    <VerticalDotsIcon className="text-default-300" />
-                                </Button>
-                            </DropdownTrigger>
-                            <DropdownMenu>
-                                <DropdownItem onClick={() => {handleModal(course, "view") }}>View</DropdownItem>
-                                <DropdownItem onClick={() => { handleModal(course, "edit")}}>Edit</DropdownItem>
-                                {
-                                    course.status===1 ? <DropdownItem onClick={() => handleCourseStatus(course.id,'0')}> <h2 className="text-warning">Deactivate</h2></DropdownItem> 
-                                    :<DropdownItem onClick={() => handleCourseStatus(course.id,'1')}> <h2 className="text-success">Activate</h2> </DropdownItem> 
+            // case "actions":
+            //     return (
 
-                                }
-                                <DropdownItem onClick={() => handleDelete(course.id)}>Delete</DropdownItem>
-                            </DropdownMenu>
-                        </Dropdown>
-                    </div>
-                );
+            //     );
             default:
                 return cellValue;
         }
     }, []);
 
     const onNextPage = React.useCallback(() => {
-        if (page < pages) {
-            setPage(page + 1);
+        if (currentPage < totalPage) {
+            setCurrentPage(currentPage + 1);
         }
-    }, [page, pages]);
+    }, [totalPage, currentPage]);
 
     const onPreviousPage = React.useCallback(() => {
-        if (page > 1) {
-            setPage(page - 1);
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
         }
-    }, [page]);
+    }, [currentPage]);
 
     const onRowsPerPageChange = React.useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
         setRowsPerPage(Number(e.target.value));
         setPage(1);
     }, []);
 
-    const onSearchChange = React.useCallback((value?: string) => {
+    const onSearchChange = React.useCallback(async (value?: string) => {
+
         if (value) {
             setFilterValue(value);
-            setPage(1);
+            try {
+
+                console.log("true mwone")
+                const { data } = await axios.get(`/course/?search=${value}`, {
+                    headers: {
+                        Authorization: `Bearer ${session?.user.access_token}`
+                    }
+                });
+
+
+
+                setcourses(data.data);
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            }
         } else {
             setFilterValue("");
         }
@@ -346,7 +384,7 @@ export default function CoursePage() {
                         onValueChange={onSearchChange}
                     />
                     <div className="flex gap-3">
-                        <Dropdown>
+                        {/* <Dropdown>
                             <DropdownTrigger className="hidden sm:flex">
                                 <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
                                     Status
@@ -366,7 +404,7 @@ export default function CoursePage() {
                                     </DropdownItem>
                                 ))}
                             </DropdownMenu>
-                        </Dropdown>
+                        </Dropdown> */}
                         <Dropdown>
                             <DropdownTrigger className="hidden sm:flex">
                                 <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
@@ -420,17 +458,17 @@ export default function CoursePage() {
                     </div>
                 </div>
                 <div className="flex justify-between items-center">
-                    <span className="text-default-400 text-small">Total {courses?.length} Courses</span>
+                    <span className="text-default-400 text-small">Total {totalCount} Courses</span>
                     <label className="flex items-center text-default-400 text-small">
-                        Rows per page:
-                        <select
+                    Rows per page: 10
+                        {/* <select
                             className="bg-transparent outline-none text-default-400 text-small"
                             onChange={onRowsPerPageChange}
                         >
                             <option value="5">5</option>
                             <option value="10">10</option>
                             <option value="15">15</option>
-                        </select>
+                        </select> */}
                     </label>
                 </div>
             </div>
@@ -459,15 +497,15 @@ export default function CoursePage() {
                     showControls
                     showShadow
                     color="primary"
-                    page={page}
-                    total={pages}
-                    onChange={setPage}
+                    page={currentPage}
+                    total={totalPage}
+                    onChange={setCurrentPage}
                 />
                 <div className="hidden sm:flex w-[30%] justify-end gap-2">
-                    <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onPreviousPage}>
+                    <Button isDisabled={currentPage === 1} size="sm" variant="flat" onPress={onPreviousPage}>
                         Previous
                     </Button>
-                    <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onNextPage}>
+                    <Button isDisabled={totalPage === 1} size="sm" variant="flat" onPress={onNextPage}>
                         Next
                     </Button>
                 </div>

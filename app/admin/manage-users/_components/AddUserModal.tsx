@@ -50,18 +50,21 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                 /^[0-9]{10}$/,
                 'Invalid phone number. Please enter a 10-digit phone number without spaces or special characters.'
             ),
-        city: yup.string().required(),
+        city: yup.string().required('city is required'),
         zip_code: yup.string().notRequired(),
-        address_line_1: yup.string().required('Address is required field')
+        state: yup.string().required('State is required'),
+        country: yup.string().required('country is required'),
+        address_line_1: yup.string().required('Address is required field'),
+        address_line_2: yup.string().notRequired()
     });
-    const { register, control, handleSubmit, watch, reset, formState: { errors } } = useForm({
+    const { register, control, handleSubmit, reset, formState: { errors } } = useForm({
         resolver: yupResolver(validationSchema)
     });
 
     useEffect(() => {
         if (isOpen) {
             reset(initialData);  // Reset form with initial data when modal opens
-            reset({role:initialData?.role?.id})
+            reset({ role: initialData?.role?.id })
 
             // Set default value for uncontrolled input (Textarea)
         }
@@ -182,7 +185,7 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
     const HeaderComponent = () => {
         if (mode == "add") {
             return (
-                <ModalHeader className="flex flex-col gap-1">Add New Role</ModalHeader>
+                <ModalHeader className="flex flex-col gap-1">Add New User</ModalHeader>
             )
         } else if (mode == "view") {
             return (
@@ -350,6 +353,37 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                                     />
 
                                     <Input
+                                        errorMessage={errors.state && errors.state.message}
+                                        placeholder="Enter your State"
+                                        startContent={<></>}
+                                        isDisabled={mode === "view"}
+                                        defaultValue={initialData.state}
+                                        endContent={<></>}
+                                        labelPlacement="outside"
+                                        type="text"
+                                        label="state"
+                                        {...register("state", { required: true })}
+                                    />
+
+                                </div>
+
+                                <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
+
+                                    <Input
+                                        errorMessage={errors.country && errors.country.message}
+                                        placeholder="Enter your country"
+                                        startContent={<></>}
+                                        isDisabled={mode === "view"}
+                                        defaultValue={initialData.country}
+                                        endContent={<></>}
+                                        labelPlacement="outside"
+                                        type="text"
+                                        label="Country"
+                                        {...register("country", { required: true })}
+                                    />
+
+
+                                    <Input
                                         errorMessage={errors.zip_code && errors.zip_code.message}
                                         placeholder="Enter your zip code"
                                         startContent={<></>}
@@ -378,6 +412,21 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                                         label="Address"
                                         {...register("address_line_1")}
                                     />
+
+                                    <Textarea
+                                        errorMessage={errors.address_line_2 && errors.address_line_2.message}
+                                        startContent={<></>}
+                                        placeholder="Write your second address here"
+                                        isDisabled={mode === "view"}
+                                        defaultValue={initialData.address_line_2}
+                                        endContent={<></>}
+                                        labelPlacement="outside"
+                                        type="text"
+                                        label="Secondary Address"
+                                        {...register("address_line_2")}
+                                    />
+
+
 
                                 </div>
                             </ModalBody>

@@ -11,7 +11,7 @@ const columns = [
   // { name: "Offer Percentage", uid: "offer_persentage", sortable: true },
   { name: "Available", uid: "seats_available", sortable: true },
   { name: "Published", uid: "is_published", sortable: true },
-  { name: "ACTIONS", uid: "actions" },
+  { name: "status", uid: "status" },
 ];
 
 const statusOptions = [

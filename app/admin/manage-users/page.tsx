@@ -32,13 +32,14 @@ import AddUserModal from "./_components/AddUserModal";
 import axios from "@/lib/axios";
 import { useSession } from "next-auth/react";
 import { Slide, toast } from "react-toastify";
+import { type } from "os";
 
 //global variables
 const statusColorMap: Record<string, ChipProps["color"]> = {
     Active: "success",
     Inactive: "danger",
 };
-const INITIAL_VISIBLE_COLUMNS = ["email_id", "role", "status", "actions"];
+const INITIAL_VISIBLE_COLUMNS = ["email_id", "first_name", "last_name", "phone_number", "role", "status"];
 type User = typeof users[0];
 
 
@@ -51,7 +52,7 @@ export default function ManageUserPage() {
     const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
     const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
     const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
-    const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const [rowsPerPage, setRowsPerPage] = React.useState(10);
     const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
         column: "age",
         direction: "ascending",
@@ -60,15 +61,17 @@ export default function ManageUserPage() {
     const [mode, setMode] = useState('view'); // Default to view mode
     const [users, setUsers] = useState([])
     const [refresh, setRefresh] = useState(false)
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalPage, setTotalPages] = useState(1)
+    const [totalCount, setTotalCount] = useState(0)
 
     useEffect(() => {
         getUsers()
-    }, [refresh]);
+    }, [refresh, currentPage]);
 
     const getUsers = async () => {
-        console.log("iam worked")
         try {
-            const { data } = await axios.get('/users/', {
+            const { data } = await axios.get(`/users/?page=${currentPage}`, {
                 headers: {
                     Authorization: `Bearer ${session?.user.access_token}`
                 }
@@ -79,7 +82,10 @@ export default function ManageUserPage() {
                 roleName: user.role.name,
                 role: undefined // Remove the original role object
             }));
+            setCurrentPage(data.current_page)
             setUsers(transformedUsers)
+            setTotalCount(data.total)
+            setTotalPages(data.total_pages)
         } catch (error) {
             console.log(error)
         }
@@ -92,7 +98,7 @@ export default function ManageUserPage() {
             try {
                 const { data } = await axios.get(`/users/${user.id}/`, { headers: { Authorization: `Bearer ${session?.user.access_token}` } })
                 setFormData(data)
-                console.log(data,"foooo")
+                console.log(data, "foooo")
                 onOpen()
             } catch (error) {
                 console.log(error)
@@ -109,7 +115,7 @@ export default function ManageUserPage() {
                 }
             })
             console.log(data)
-            setRefresh((prev)=>!prev)
+            setRefresh((prev) => !prev)
             toast.success('Deleted successfully', {
                 position: "top-right",
                 autoClose: 5000,
@@ -122,7 +128,7 @@ export default function ManageUserPage() {
                 transition: Slide,
             });
         } catch (error) {
-            
+
             toast.error('Something went wrong Please Try again', {
                 position: "top-right",
                 autoClose: 5000,
@@ -139,15 +145,15 @@ export default function ManageUserPage() {
     }
 
 
-    const handleUserStatus = async (id:string,status:string)=> {
+    const handleUserStatus = async (id: string, status: string) => {
         try {
-            const { data } = await axios.patch(`/users/${id}/`,{status:status}, {
+            const { data } = await axios.patch(`/users/${id}/`, { status: status }, {
                 headers: {
                     Authorization: `Bearer ${session?.user?.access_token}`
                 }
             })
             console.log(data)
-            setRefresh((prev)=>!prev)
+            setRefresh((prev) => !prev)
             toast.success('Status changed successfully', {
                 position: "top-right",
                 autoClose: 5000,
@@ -173,7 +179,7 @@ export default function ManageUserPage() {
             });
 
         }
-    }   
+    }
 
     //table based components and states
     const [page, setPage] = React.useState(1);
@@ -186,19 +192,26 @@ export default function ManageUserPage() {
 
     const filteredItems = React.useMemo(() => {
         let filteredUsers = [...users];
-        if (hasSearchFilter) {
-            filteredUsers = filteredUsers.filter((user: User) =>
-                user?.email_id.toLowerCase().includes(filterValue.toLowerCase()),
-            );
+        console.log(filterValue.length, "foooo", typeof (filterValue))
+        if (filterValue.length == 0) {
+
+            // filteredUsers = filteredUsers.filter((user: User) =>
+            //     user?.email_id.toLowerCase().includes(filterValue.toLowerCase()),
+            // );
+            setRefresh((prev) => !prev)
+
+
         }
-        if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
-            filteredUsers = filteredUsers.filter((user: User) =>
-                Array.from(statusFilter).includes(user.status),
-            );
-        }
+        // if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
+        //     filteredUsers = filteredUsers.filter((user: User) =>
+        //         Array.from(statusFilter).includes(user.status),
+        //     );
+        // }
 
         return filteredUsers;
     }, [users, filterValue, statusFilter]);
+
+
 
     const pages = Math.ceil(filteredItems.length / rowsPerPage);
     const items = React.useMemo(() => {
@@ -240,61 +253,102 @@ export default function ManageUserPage() {
                 );
             case "status":
                 return (
-                    <Chip className="capitalize" color={statusColorMap[cellValue==1?'Active':'Inactive']} size="sm" variant="dot">
-                        {cellValue==1?'Active':'Inactive'}
-                    </Chip>
-                );
-            case "actions":
-                return (
-                    <div className="relative flex justify-center items-center gap-2">
-                        <Dropdown>
-                            <DropdownTrigger>
-                                <Button isIconOnly size="sm" variant="light">
-                                    <VerticalDotsIcon className="text-default-300" />
-                                </Button>
-                            </DropdownTrigger>
-                            <DropdownMenu>
-                                <DropdownItem onClick={() => handleModal(user, "view")}>View</DropdownItem>
-                                <DropdownItem onClick={() => handleModal(user, "edit")}>Edit</DropdownItem>
-                                {
-                                    user.status===1 ? <DropdownItem onClick={() => handleUserStatus(user.id,'0')}> <h2 className="text-warning">Deactivate</h2></DropdownItem> 
-                                    :<DropdownItem onClick={() => handleUserStatus(user.id,'1')}> <h2 className="text-success">Activate</h2> </DropdownItem> 
+                    <div className="flex flex-row">
 
-                                }
-                                
-                                <DropdownItem onClick={() => handleDelete(user.id)}><h2 className="text-danger">Delete</h2></DropdownItem>
-                            </DropdownMenu>
-                        </Dropdown>
+                        <Chip className="capitalize" color={statusColorMap[cellValue == 1 ? 'Active' : 'Inactive']} size="sm" variant="dot">
+                            {cellValue == 1 ? 'Active' : 'Inactive'}
+                        </Chip>
+                        <div className="relative flex justify-center items-center gap-2">
+                            <Dropdown>
+                                <DropdownTrigger>
+                                    <Button isIconOnly size="sm" variant="light">
+                                        <VerticalDotsIcon className="text-default-300" />
+                                    </Button>
+                                </DropdownTrigger>
+                                <DropdownMenu>
+                                    <DropdownItem onClick={() => handleModal(user, "view")}>View</DropdownItem>
+                                    <DropdownItem onClick={() => handleModal(user, "edit")}>Edit</DropdownItem>
+                                    {
+                                        user.status === 1 ? <DropdownItem onClick={() => handleUserStatus(user.id, '0')}> <h2 className="text-warning">Deactivate</h2></DropdownItem>
+                                            : <DropdownItem onClick={() => handleUserStatus(user.id, '1')}> <h2 className="text-success">Activate</h2> </DropdownItem>
+
+                                    }
+
+                                    <DropdownItem onClick={() => handleDelete(user.id)}><h2 className="text-danger">Delete</h2></DropdownItem>
+                                </DropdownMenu>
+                            </Dropdown>
+                        </div>
                     </div>
                 );
+
             default:
                 return cellValue;
         }
     }, []);
 
     const onNextPage = React.useCallback(() => {
-        if (page < pages) {
-            setPage(page + 1);
+        if (currentPage < totalPage) {
+            setCurrentPage(currentPage + 1);
         }
-    }, [page, pages]);
+    }, [totalPage, currentPage]);
 
     const onPreviousPage = React.useCallback(() => {
-        if (page > 1) {
-            setPage(page - 1);
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
         }
-    }, [page]);
+    }, [currentPage]);
 
     const onRowsPerPageChange = React.useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
         setRowsPerPage(Number(e.target.value));
         setPage(1);
     }, []);
 
-    const onSearchChange = React.useCallback((value?: string) => {
+    const onSearchChange = React.useCallback(async (value?: string) => {
+        setFilterValue(value || "");
         if (value) {
-            setFilterValue(value);
-            setPage(1);
+            // setPage(1);
+            try {
+
+                console.log("true mwone")
+                const { data } = await axios.get(`/users/?search=${value}`, {
+                    headers: {
+                        Authorization: `Bearer ${session?.user.access_token}`
+                    }
+                });
+
+                const transformedUsers = data?.data?.map((user: any) => ({
+                    ...user, // Spread all existing properties
+                    roleId: user.role.id,
+                    roleName: user.role.name,
+                    role: undefined // Remove the original role object
+                }));
+
+
+                setUsers(transformedUsers);
+            } catch (error) {
+                console.error('Error fetching users:', error);
+            }
         } else {
-            setFilterValue("");
+            // console.log("else worked")
+            // try {
+            //     const { data } = await axios.get('/users', {
+            //         headers: {
+            //             Authorization: `Bearer ${session?.user.access_token}`
+            //         }
+            //     });
+
+            //     const transformedUsers = data?.data?.map((user: any) => ({
+            //         ...user, // Spread all existing properties
+            //         roleId: user.role.id,
+            //         roleName: user.role.name,
+            //         role: undefined // Remove the original role object
+            //     }));
+
+            //     setUsers(transformedUsers);
+            // } catch (error) {
+            //     console.error('Error fetching all users:', error);
+            // }
+
         }
     }, []);
 
@@ -310,7 +364,6 @@ export default function ManageUserPage() {
                 <div className="flex justify-between  gap-3 items-end">
                     <Input
                         isClearable
-
                         className="w-full  sm:max-w-[44%]"
                         placeholder="Search by name..."
                         startContent={<SearchIcon />}
@@ -319,7 +372,7 @@ export default function ManageUserPage() {
                         onValueChange={onSearchChange}
                     />
                     <div className="flex gap-3">
-                        <Dropdown>
+                        {/* <Dropdown>
                             <DropdownTrigger className="hidden sm:flex">
                                 <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
                                     Status
@@ -339,7 +392,7 @@ export default function ManageUserPage() {
                                     </DropdownItem>
                                 ))}
                             </DropdownMenu>
-                        </Dropdown>
+                        </Dropdown> */}
                         <Dropdown>
                             <DropdownTrigger className="hidden sm:flex">
                                 <Button endContent={<ChevronDownIcon className="text-small" />} variant="flat">
@@ -361,46 +414,46 @@ export default function ManageUserPage() {
                                 ))}
                             </DropdownMenu>
                         </Dropdown>
-                        <Button color="primary" onPress={()=>{
+                        <Button color="primary" onPress={() => {
                             setFormData({
-                                    "email_id": "",
-                                    "phone_number": "",
-                                    "description": "",
-                                    "first_name": "",
-                                    "last_name": "",
-                                    "country_code": "",
-                                    "address_line_1": "",
-                                    "address_line_2": "",
-                                    "country": "",
-                                    "state": "",
-                                    "city": "",
-                                    "zip_code": "",
-                                    "profile_image": "",
-                                    "status": 1,
-                                    "role": {
-                                        "id": "",
-                                        "name": ""
-                                    }
+                                "email_id": "",
+                                "phone_number": "",
+                                "description": "",
+                                "first_name": "",
+                                "last_name": "",
+                                "country_code": "",
+                                "address_line_1": "",
+                                "address_line_2": "",
+                                "country": "",
+                                "state": "",
+                                "city": "",
+                                "zip_code": "",
+                                "profile_image": "",
+                                "status": 1,
+                                "role": {
+                                    "id": "",
+                                    "name": ""
+                                }
                             })
                             setMode("add")
                             onOpen()
-                            }} endContent={<PlusIcon />}>
+                        }} endContent={<PlusIcon />}>
                             Add New
                         </Button>
                     </div>
                 </div>
                 <div className="flex justify-between items-center">
-                    <span className="text-default-400 text-small">Total {users?.length} users</span>
+                    <span className="text-default-400 text-small">Total {totalCount} users</span>
                     <label className="flex items-center text-default-400 text-small">
-                        Rows per page:
-                        <select
+                        Rows per page: 10
+                        {/* <select
                             className="bg-transparent outline-none text-default-400 text-small"
                             onChange={onRowsPerPageChange}
                         >
                             <option value="5">5</option>
                             <option value="10">10</option>
                             <option value="15">15</option>
-                        </select>
+                        </select> */}
                     </label>
                 </div>
             </div>
@@ -429,15 +482,15 @@ export default function ManageUserPage() {
                     showControls
                     showShadow
                     color="primary"
-                    page={page}
-                    total={pages}
-                    onChange={setPage}
+                    page={currentPage}
+                    total={totalPage}
+                    onChange={setCurrentPage}
                 />
                 <div className="hidden sm:flex w-[30%] justify-end gap-2">
-                    <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onPreviousPage}>
+                    <Button isDisabled={currentPage === 1} size="sm" variant="flat" onPress={onPreviousPage}>
                         Previous
                     </Button>
-                    <Button isDisabled={pages === 1} size="sm" variant="flat" onPress={onNextPage}>
+                    <Button isDisabled={totalPage === 1} size="sm" variant="flat" onPress={onNextPage}>
                         Next
                     </Button>
                 </div>
