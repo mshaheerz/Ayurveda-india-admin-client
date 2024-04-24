@@ -26,7 +26,7 @@ interface RoleType {
 interface FormDataType {
     first_name: "",
     last_name: "",
-    profile_image:"",
+    profile_image?: string,
     address_line_1: "",
     address_line_2: "",
     city: "",
@@ -34,7 +34,7 @@ interface FormDataType {
     email_id: "",
     password: "",
     phone_number: "",
-    role: "",
+    role?: "",
     state: "",
     zip_code: ""
 }
@@ -438,7 +438,7 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                                         placeholder={"Please select Role"}
                                         labelPlacement="outside"
                                         name="role"
-                                        selectedKeys={[formData?.role]}
+                                        selectedKeys={[formData?.role|| ""]}
                                     // {...register("role",)}
                                     >
                                         {/* {label: "Giraffe", value: "giraffe", description: "The tallest land animal"} */}
