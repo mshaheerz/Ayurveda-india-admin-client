@@ -24,6 +24,7 @@ interface AddCourseProps {
 interface Module {
     name: string;
     description: string;
+    id?:string;
 }
 
 
@@ -58,7 +59,7 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
     };
 
 
-    const removeTheoryModule = async (index: number, id: string) => {
+    const removeTheoryModule = async (index: number, id: any) => {
 
         if (mode === "edit") {
             try {
