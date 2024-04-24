@@ -21,15 +21,22 @@ const SignIn = ({ searchParams }: IProps) => {
   const userName = useRef("");
   const pass = useRef("");
 
-  const onSubmit = async () => {
-    console.log(userName.current,pass.current,'fffffff')
-    const result = await signIn("credentials", {
-      username: userName.current,
-      password: pass.current,
-      redirect: true,
-      callbackUrl: "/admin",
-    });
-    console.log(result, "foooo")
+  const onSubmit = async (e:any) => {
+    e.preventDefault()
+    console.log(userName.current, pass.current, 'fffffff')
+    try {
+      const result = await signIn("credentials", {
+        username: userName.current,
+        password: pass.current,
+        redirect: true,
+        callbackUrl: "/admin",
+      });
+      console.log(result, "foooo")
+    } catch (error) {
+      console.log(error)
+
+    }
+
   };
 
 
@@ -194,7 +201,7 @@ const SignIn = ({ searchParams }: IProps) => {
                 Sign In to Ayurveda India
               </h2>
 
-              <form>
+              <form onSubmit={onSubmit}>
                 <div className="mb-4">
                   <label className="mb-2.5 block font-medium text-white">
                     Email
@@ -266,8 +273,8 @@ const SignIn = ({ searchParams }: IProps) => {
                 <div className="mb-5">
                   {/* <button type="button" onClick={()=>signIn()}>test</button> */}
                   <input
-                    onClick={onSubmit}
-                    type="button"
+
+                    type="submit"
                     value="Sign In"
                     className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
                   />

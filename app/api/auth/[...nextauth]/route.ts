@@ -28,6 +28,7 @@ import axios from "@/lib/axios"
         },
       },
       async authorize(credentials, req) {
+        console.log("foooooo")
         const { username, password } = credentials as any;
         console.log(username,password )
         const dat =  new FormData()

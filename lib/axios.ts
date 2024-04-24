@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { signOut } from 'next-auth/react';
 
 const instance = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api', // Replace with your actual base URL
+  baseURL: process.env.API, // Replace with your actual base URL
 });
 
 // instance.interceptors.request.use((config) => {
@@ -11,5 +12,18 @@ const instance = axios.create({
 //     }
 //     return config;
 // },(error) => Promise.reject(error))
+
+// instance.interceptors.response.use(
+//   (response) => {
+//     return response;
+//   },
+//   async (error) => {
+//     if (error.response && error.response.status === 401) {
+//       // Token is expired or invalid, log out the user
+//       await signOut({ redirect: false, callbackUrl: "/login" });
+//     }
+//     return Promise.reject(error);
+//   }
+// );
 
 export default instance;

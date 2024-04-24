@@ -27,7 +27,7 @@ interface Module {
 }
 
 
-function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh, onClose, mode, initialData, setInitialData }: AddCourseProps) {
+function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh, onClose, mode, initialData, setInitialData }: AddCourseProps) {
     const formRef = useRef(null);
     const [addedPhotos, setAddedPhotos] = useState([])
     const defaultValues = mode === "edit" ? initialData : {
@@ -37,10 +37,8 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
     const { register, control, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm({ defaultValues });
 
 
-    const initialCourseModules = initialData.modules || [];
-    const initialPracticalModules = initialData.practicals || [];
-    const [practical_modules, setPractical_Modules] = useState<Module[]>([]);
-    const [theory_modules, setTheory_Modules] = useState<Module[]>([]);
+    const initialCourseModules = initialData.treatmentmodule_treatment || [];
+    const [modules, setModules] = useState<Module[]>([]);
     const [startTimeMorning, setStartTimeMorning] = useState("")
     const [endTimeMorning, setEndTimeMorning] = useState("")
     const [startTimeAfternoon, setStartTimeAfternoon] = useState("")
@@ -49,14 +47,14 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
 
     const handleTheoryModuleChange = (index: number, field: keyof Module, value: string) => {
-        const updatedModules = [...theory_modules];
+        const updatedModules = [...modules];
         updatedModules[index][field] = value;
-        setTheory_Modules(updatedModules);
+        setModules(updatedModules);
     };
 
 
     const addTheoryModule = () => {
-        setTheory_Modules([...theory_modules, { name: '', description: '' }]);
+        setModules([...modules, { name: '', description: '' }]);
     };
 
 
@@ -75,9 +73,9 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                         Authorization: `Bearer ${token}`, // Include your authentication token
                     },
                 });
-                const updatedModules = [...theory_modules];
+                const updatedModules = [...modules];
                 updatedModules.splice(index, 1);
-                setTheory_Modules(updatedModules);
+                setModules(updatedModules);
 
 
             } catch (error) {
@@ -85,9 +83,9 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
             }
         } else {
-            const updatedModules = [...theory_modules];
+            const updatedModules = [...modules];
             updatedModules.splice(index, 1);
-            setTheory_Modules(updatedModules);
+            setModules(updatedModules);
         }
 
     };
@@ -96,46 +94,10 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
 
 
-    //practical module add section
-    const handleModuleChange = (index: number, field: keyof Module, value: string) => {
-        const updatedModules = [...practical_modules];
-        updatedModules[index][field] = value;
-        setPractical_Modules(updatedModules);
-    };
-
-    const addModule = () => {
-        setPractical_Modules([...practical_modules, { name: '', description: '' }]);
-    };
-
-    const removeModule = async(index: number,id:string) => {
-        if (mode === "edit") {
-            try {
-                const formData = new FormData()
-                formData.append("id",id)
-
-                await axios.delete('/course/delete_practical/', {
-                    data: formData,
-                    headers: {
-                        Authorization: `Bearer ${token}`, // Include your authentication token
-                    },
-                });
-                const updatedModules = [...practical_modules];
-                updatedModules.splice(index, 1);
-                setPractical_Modules(updatedModules);
 
 
-            } catch (error) {
-                console.log(error)
 
-            }
-        }
-        else {
-            const updatedModules = [...practical_modules];
-            updatedModules.splice(index, 1);
-            setPractical_Modules(updatedModules);
-        }
-
-    };
+    
 
 
 
@@ -147,7 +109,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
             return (
                 <Button
                     type="submit" color="primary">
-                    Add Course
+                    Add Treatment
                 </Button>
             )
         } else if (mode == "view") {
@@ -157,7 +119,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
         } else {
             return (
                 <Button type="submit" color="primary">
-                    Modify Course
+                    Modify Treatment
                 </Button>
             )
         }
@@ -175,8 +137,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
     useEffect(() => {
         console.log(initialData)
         if (mode === "add") {
-            setPractical_Modules([])
-            setTheory_Modules([])
+            setModules([])
             setTimeLineType("full_day")
             setStartTimeMorning("")
             setEndTimeMorning("")
@@ -190,25 +151,12 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
         if (mode == "edit") {
             reset(initialData);
             setAddedPhotos([])
-
-            setPractical_Modules(initialPracticalModules)
-            setTheory_Modules(initialCourseModules)
-            setTimeLineType(initialData?.timeline?.[0]?.timeline_type)
-            setStartTimeMorning(initialData?.timeline?.[0]?.start_time_morning)
-            setEndTimeMorning(initialData?.timeline?.[0]?.end_time_morning)
-            setStartTimeAfternoon(initialData?.timeline?.[0]?.start_time_afternoon)
-            setEndTimeAfternoon(initialData?.timeline?.[0]?.end_time_afternoon)
+            setModules(initialCourseModules)
         }
 
         if (mode == "view") {
-            setPractical_Modules([])
             setAddedPhotos([])
-            setTheory_Modules([])
-            setTimeLineType(initialData?.timeline?.[0]?.timeline_type)
-            setStartTimeMorning(initialData?.timeline?.[0]?.start_time_morning)
-            setEndTimeMorning(initialData?.timeline?.[0]?.end_time_morning)
-            setStartTimeAfternoon(initialData?.timeline?.[0]?.start_time_afternoon)
-            setEndTimeAfternoon(initialData?.timeline?.[0]?.end_time_afternoon)
+            setModules([])
 
         }
     }, [initialData]);
@@ -216,15 +164,9 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
     const onSubmit = async (data: any) => {
         console.log(data)
-        const intpr = practical_modules?.map((dat: any) => {
-            return {
-                name: dat.name,
-                description: dat.description,
-                id: dat?.id
-            }
-        })
+       
 
-        const intprs = theory_modules?.map((dat: any) => {
+        const intprs = modules?.map((dat: any) => {
             return {
                 name: dat.name,
                 description: dat.description,
@@ -233,16 +175,8 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
         })
         let forms = {
             ...data,
-            "course_practicals": JSON.stringify(intpr),
-            "course_modules": JSON.stringify(intprs),
-            "timeline_type": timeLineType,
-            "start_time_morning": startTimeMorning || "",
-            "end_time_morning": endTimeMorning || "",
-            "start_time_afternoon": startTimeAfternoon || "",
-            "end_time_afternoon": endTimeAfternoon || "",
+            "treatment_modules": JSON.stringify(intprs),
         }
-        forms.modules = ['goo', 'foo']
-        console.log(forms)
         // return ;
 
         if (mode === "edit") {
@@ -257,7 +191,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
             console.log(addedPhotos)
 
             try {
-                const { data } = await axios.put(`/course/${initialData.id}/`, formData,
+                const { data } = await axios.put(`/treatment/${initialData.id}/`, formData,
                     {
                         headers:
                         {
@@ -314,7 +248,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
             });
 
             try {
-                const { data } = await axios.post('/course/', formData,
+                const { data } = await axios.post('/treatment/', formData,
                     {
                         headers:
                         {
@@ -460,15 +394,15 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
     const HeaderComponent = () => {
         if (mode == "add") {
             return (
-                <ModalHeader className="flex flex-col gap-1">Add New Course</ModalHeader>
+                <ModalHeader className="flex flex-col gap-1">Add New Treatment</ModalHeader>
             )
         } else if (mode == "view") {
             return (
-                <ModalHeader className="flex flex-col gap-1">View Course Details</ModalHeader>
+                <ModalHeader className="flex flex-col gap-1">View Treatment Details</ModalHeader>
             )
         } else {
             return (
-                <ModalHeader className="flex flex-col gap-1">Edit Course</ModalHeader>
+                <ModalHeader className="flex flex-col gap-1">Edit Treatment</ModalHeader>
             )
         }
     }
@@ -476,7 +410,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
     const handlePublish = async () => {
         try {
-            const { data } = await axios.patch(`/course/${initialData.id}/published/`, {
+            const { data } = await axios.patch(`/treatment/${initialData.id}/published/`, {
                 is_published: true
             },
                 { headers: { Authorization: `Bearer ${token}` } })
@@ -520,7 +454,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
     const handleUnPublish = async () => {
         try {
-            const { data } = await axios.patch(`/course/${initialData.id}/published/`, {
+            const { data } = await axios.patch(`/treatment/${initialData.id}/published/`, {
                 is_published: false
             },
                 { headers: { Authorization: `Bearer ${token}` } })
@@ -613,15 +547,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                         />
 
 
-                                        <Input
-                                            defaultValue={initialData.short_name}
-                                            disabled={mode === 'view'}
-                                            errorMessage={errors.short_name && "Short name is required"}
-                                            label="Short Name"
-                                            labelPlacement="outside"
-                                            type="text"
-                                            {...register("short_name", { required: true })}
-                                        />
+                                        
 
                                     </div>
 
@@ -687,12 +613,12 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
                                     <div className="flex w-full flex-wrap md:flex-nowrap gap-4 pb-5">
                                         <Input
-                                            defaultValue={initialData.actual_course_price}
+                                            defaultValue={initialData.actual_price}
                                             disabled={mode === 'view'}
                                             label="Price"
                                             labelPlacement="outside"
                                             type="number"
-                                            {...register("actual_course_price", { required: true })}
+                                            {...register("actual_price", { required: true })}
                                         />
                                         <Input
                                             defaultValue={initialData.offer_persentage}
@@ -703,38 +629,21 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             {...register("offer_persentage", { required: true })}
                                         />
 
-                                        {/* Timeline Type */}
-                                        <Select
-                                            isDisabled={mode === 'view'}
-                                            errorMessage={errors.timeline_type && "Timeline Type is required"}
-                                            defaultSelectedKeys={[timeLineType || "full_day"]}
-                                            label="Timeline Type"
-                                            onChange={(e) => setTimeLineType(e.target.value)}
-                                            labelPlacement="outside"
-                                            required={true}
-                                        >
-                                            <SelectItem key="full_day" value="full_day">Full Day</SelectItem>
-                                            <SelectItem key="half_day" value="half_day">Half Day</SelectItem>
-                                        </Select>
-                                        {/* Render time inputs based on timeline_type */}
-
 
 
                                     </div>
-                                    <div className="flex w-full flex-wrap md:flex-nowrap gap-4 pb-5">
-                                        {<RenderTimeInputs />}
-                                    </div>
 
 
 
-                                    {/* theory modules */}
+
+                         {/* modules */}
 
                                     <div className="mb-4">
                                         {
                                             mode == "view" && (
                                                 <>
                                                     <h1 className="text-black dark:text-white font-bold">
-                                                        Theory Modules
+                                                         Modules
                                                     </h1>
                                                 </>
                                             )
@@ -744,7 +653,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             mode == "add" && (
                                                 <>
                                                     <h1 className="text-black dark:text-white font-bold">
-                                                        Add Theory Modules
+                                                        Add Modules
                                                     </h1>
                                                 </>
                                             )
@@ -754,7 +663,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             mode == "edit" && (
                                                 <>
                                                     <h1 className="text-black dark:text-white font-bold">
-                                                        Edit Theory Modules
+                                                        Edit Modules
                                                     </h1>
                                                 </>
                                             )
@@ -764,7 +673,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             mode == "edit" || mode == "add" && (
                                                 <div className="flex justify-center items-center">
                                                     {
-                                                        theory_modules.length === 0 && (<Button size="lg" className="p-12" type="button" endContent={<PlusCircleIcon color="green" />} variant="ghost" onClick={addTheoryModule}>
+                                                        modules.length === 0 && (<Button size="lg" className="p-12" type="button" endContent={<PlusCircleIcon color="green" />} variant="ghost" onClick={addTheoryModule}>
                                                             Add Theory Modules
                                                         </Button>)
                                                     }
@@ -802,7 +711,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
 
                                         <div className="grid grid-cols-2 gap-2 ">
-                                            {theory_modules?.map((module, index) => (
+                                            {modules?.map((module, index) => (
                                                 <div key={index} className="flex w-full  justify-center align-middle items-center flex-wrap md:flex-nowrap gap-4 pb-5">
 
                                                     <Input
@@ -830,12 +739,12 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
                                                     {index >= 0 && (
                                                         <div>
-                                                            <Trash2Icon color="red" height={"20px"} className="mt-6 cursor-pointer" onClick={() => removeTheoryModule(index, module.id)} />
+                                                            <Trash2Icon color="red" height={"20px"} className="mt-6 cursor-pointer" onClick={() => removeTheoryModule(index, module?.id)} />
                                                         </div>
 
 
                                                     )}
-                                                    {index === theory_modules.length - 1 && (
+                                                    {index === modules.length - 1 && (
                                                         <div>
                                                             <PlusCircleIcon color="green" height={"20px"} className="mt-6 cursor-pointer" onClick={addTheoryModule} />
                                                         </div>
@@ -860,130 +769,6 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
 
                                     <div className="mb-4">
-
-                                        {
-                                            mode == "view" && (
-                                                <>
-                                                    <h1 className="text-black dark:text-white font-bold">
-                                                        Practical Modules
-                                                    </h1>
-                                                </>
-                                            )
-                                        }
-
-                                        {
-                                            mode == "add" && (
-                                                <>
-                                                    <h1 className="text-black dark:text-white font-bold">
-                                                        Add Practical Modules
-                                                    </h1>
-                                                </>
-                                            )
-                                        }
-
-                                        {
-                                            mode == "edit" && (
-                                                <>
-                                                    <h1 className="text-black dark:text-white font-bold">
-                                                        Edit Practical Modules
-                                                    </h1>
-                                                </>
-                                            )
-                                        }
-
-                                        {
-                                            mode == "edit" || mode == "add" && (
-                                                <div className="flex justify-center items-center">
-                                                    {practical_modules.length === 0 && ( // Check if there are no fields
-                                                        <Button type="button" size="lg" className="p-12" variant="ghost" endContent={<PlusCircleIcon color="green" />}
-                                                            // onClick={() => appendPractical({ name: '', description: '' })}
-                                                            onClick={addModule}
-                                                        >
-                                                            Add Practical Modules
-                                                        </Button>
-
-                                                    )}
-                                                </div>
-                                            )
-                                        }
-
-                                        {
-                                            mode == "view" && (
-                                                <div className="flex flex-wrap gap-3 mt-3 flex-1">
-                                                    {initialPracticalModules.map((dat: { name: string, description: string }, index: number) => (
-
-                                                        <div key={index} className="w-full min-w-[250px] max-w-fit border-small px-1 py-2 rounded-small border-default-200 dark:border-default-100">
-                                                            <Listbox
-                                                                aria-label="Actions"
-
-                                                                onAction={(key) => alert(key)}
-                                                            >
-                                                                <ListboxSection title={`module ${index + 1}`} showDivider>
-                                                                    <ListboxItem className="text-[#d2d2d2] " key="new">Name: {dat?.name}</ListboxItem>
-                                                                    <ListboxItem className="text-[#d2d2d2]" key="copy">Description: {dat?.description}</ListboxItem>
-                                                                </ListboxSection>
-                                                            </Listbox>
-                                                        </div>
-
-                                                    ))}
-                                                </div>
-                                            )
-                                        }
-
-
-                                        <div className="grid grid-cols-2 gap-2 ">
-
-
-
-                                            {practical_modules?.map((module, index) => (
-                                                <div key={index} className="flex w-full  justify-center align-middle items-center flex-wrap md:flex-nowrap gap-4 pb-5">
-
-                                                    <Input
-                                                        // defaultValue={module.name}
-                                                        disabled={mode === 'view'}
-                                                        label={`Module Name ${index + 1}`}
-                                                        labelPlacement="outside"
-                                                        value={module.name}
-                                                        onChange={(e) => handleModuleChange(index, 'name', e.target.value)}
-                                                    // {...register(`course_practicals[${index}].name`, { required: true })}
-                                                    />
-
-
-
-                                                    <Input
-                                                        disabled={mode === 'view'}
-                                                        // defaultValue={module.description} // Provide default value
-                                                        label={`Module Description ${index + 1}`}
-                                                        labelPlacement="outside"
-                                                        value={module.description}
-                                                        onChange={(e) => handleModuleChange(index, 'description', e.target.value)}
-                                                    // {...register(`course_practicals[${index}].description`, { required: true })}
-                                                    />
-
-
-                                                    {index >= 0 && (
-                                                        <div>
-                                                            <Trash2Icon color="red" height={"20px"} className="mt-6 cursor-pointer"
-                                                                // onClick={() => removePractical(index)} 
-                                                                onClick={() => removeModule(index,module.id)}
-                                                            />
-                                                        </div>
-
-
-                                                    )}
-                                                    {index === practical_modules.length - 1 && (
-                                                        <div>
-                                                            <PlusCircleIcon color="green" height={"20px"} className="mt-6 cursor-pointer"
-                                                                // onClick={() => appendPractical({ name: '', description: '' })} 
-                                                                onClick={addModule}
-                                                            />
-                                                        </div>
-
-
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </div>
                                         {
                                             mode === "edit" && <>
                                                 <div className="pb-12">
@@ -991,7 +776,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                                         Edit Images
                                                     </h1>
 
-                                                    <PhotosEditor setRefresh={setRefresh} authToken={token} images={initialData?.images} />
+                                                    <PhotosEditor setRefresh={setRefresh} authToken={token} images={initialData?.treatmentimages_treatment} />
                                                 </div>
 
                                             </>
@@ -1017,7 +802,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
 
                                             {
-                                                mode === "view" && <ViewImages imageStore={initialData?.images} />
+                                                mode === "view" && <ViewImages imageStore={initialData?.treatmentimages_treatment} />
                                             }
 
                                         </div>
@@ -1058,4 +843,4 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
     )
 }
 
-export default AddCourseModal
+export default AddTreatmentModal

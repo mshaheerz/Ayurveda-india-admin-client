@@ -1,7 +1,7 @@
 import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem, Textarea, useDisclosure } from "@nextui-org/react";
 import axios from "@/lib/axios";
 import { EyeIcon, EyeOffIcon, LockIcon, MailIcon } from "lucide-react";
-import { ChangeEvent, ChangeEventHandler, useEffect, useLayoutEffect, useState } from "react";
+import { ChangeEvent, ChangeEventHandler, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Slide, toast } from "react-toastify";
 import * as yup from 'yup';
@@ -23,8 +23,57 @@ interface RoleType {
     value: string
 }
 
+interface FormDataType {
+    first_name: "",
+    last_name: "",
+    profile_image:"",
+    address_line_1: "",
+    address_line_2: "",
+    city: "",
+    country: "",
+    email_id: "",
+    password: "",
+    phone_number: "",
+    role: "",
+    state: "",
+    zip_code: ""
+}
+
+interface FormErrors {
+    [key: string]: string | undefined;
+    first_name: "";
+    last_name: "";
+    address_line_1: "";
+    address_line_2: "";
+    city: "";
+    country: "";
+    email_id: "";
+    password: "";
+    phone_number: "";
+    role: "";
+    state: "";
+    zip_code: "";
+}
+
 
 function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh, onClose, mode, initialData }: AddUserProps) {
+    const [formData, setFormData] = useState<FormDataType>({ ...initialData, role: initialData?.role?.id })
+    const [errors, setErrors] = useState({
+        first_name: "",
+        last_name: "",
+        address_line_1: "",
+        address_line_2: "",
+        city: "",
+        country: "",
+        email_id: "",
+        password: "",
+        phone_number: "",
+        role: "",
+        state: "",
+        zip_code: "",
+    })
+
+
 
     const validationSchema = yup.object().shape({
         email_id: yup.string().email().required('Email is a required field'),
@@ -56,23 +105,50 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
         country: yup.string().required('country is required'),
         address_line_1: yup.string().required('Address is required field'),
         address_line_2: yup.string().notRequired()
-    });
-    const { register, control, handleSubmit, reset, formState: { errors } } = useForm({
-        resolver: yupResolver(validationSchema)
-    });
+    },
+    );
+
+
+    // const { register, control, handleSubmit, reset, formState: { errors } } = useForm({
+    //     resolver: yupResolver(validationSchema),
+    //     defaultValues: useMemo(() => {
+    //         return {
+    //             first_name: "foo",
+    //             last_name: "fppfdsaf",
+    //             address_line_1: "fsorry",
+    //             address_line_2: "cdc",
+    //             city: "sds",
+    //             country: "ssc",
+    //             email_id: "sorr",
+    //             password: "fdsda",
+    //             phone_number: "fddf",
+    //             role: "fdfdf",
+    //             state: "dfsfdsa",
+    //             zip_code: "233"
+    //         }
+    //     }, [initialData])
+    // });
 
     useEffect(() => {
-        if (isOpen) {
-            reset(initialData);  // Reset form with initial data when modal opens
-            reset({ role: initialData?.role?.id })
+        setFormData({ ...initialData, role: initialData?.role?.id })
+    }, [initialData])
 
-            // Set default value for uncontrolled input (Textarea)
-        }
-    }, [isOpen, reset, initialData]);
+    // useEffect(() => {
+    //     console.log("me worked daaaaaaaaa")
 
-    // ... (rest of the component code)
+    //         reset(initialData);  // Reset form with initial data when modal opens
+    //         reset({ role: initialData?.role?.id })
+
+    //         // Set default value for uncontrolled input (Textarea)
+
+    // }, [isOpen,onclose, reset, initialData,onOpen]);
 
 
+
+    const closer = () => {
+        // reset({})
+        onClose()
+    }
 
 
 
@@ -103,81 +179,123 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
 
     }
     // const roles = [{ label: "admin", value: "admin" }, { label: "super admin", value: "super-admin" }]
-
-    const [modalPlacement, setModalPlacement] = useState("auto");
     const [isVisible, setIsVisible] = useState(false);
     const toggleVisibility = () => setIsVisible(!isVisible);
 
-    const onSubmit = async (data: any) => {
-        if (mode === "edit") {
-            console.log(data); // Access and submit form data here
-            try {
-                const { data: res } = await axios.put(`/users/${initialData.id}/`, data, { headers: { Authorization: `Bearer ${token}` } })
-                setRefresh(!refresh)
-                reset()
+    const handleChange = (e: any) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
 
-                onClose()
-                toast.success('Successfully edited', {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: true,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "dark",
-                    transition: Slide,
-                });
+    const onSubmit = async (e: any) => {
+        e.preventDefault()
 
-            } catch (error: any) {
-                const msg = error?.response?.data?.msg || 'something went wrong try again'
-                toast.error(msg, {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: true,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "dark",
-                    transition: Slide,
+        let data:FormDataType = formData
+        delete data.profile_image
+
+        try {
+            await validationSchema.validate(formData, { abortEarly: false });
+            if (mode === "edit") {
+                console.log(data); // Access and submit form data here
+                delete data.role;
+
+                try {
+                    const { data: res } = await axios.put(`/users/${initialData.id}/`, data, { headers: { Authorization: `Bearer ${token}` } })
+                    setRefresh(!refresh)
+                    // reset({})
+
+                    // onClose()
+                    closer()
+                    toast.success('Successfully edited', {
+                        position: "top-right",
+                        autoClose: 5000,
+                        hideProgressBar: true,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "dark",
+                        transition: Slide,
+                    });
+
+                } catch (error: any) {
+                    const msg = error?.response?.data?.msg || 'something went wrong try again'
+                    toast.error(msg, {
+                        position: "top-right",
+                        autoClose: 5000,
+                        hideProgressBar: true,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "dark",
+                        transition: Slide,
+                    });
+                }
+
+            } else {
+                try {
+                    const { data: res } = await axios.post(`/users/`, data, { headers: { Authorization: `Bearer ${token}` } })
+                    console.log(res, "res")
+                    setRefresh(!refresh)
+                    // reset({})
+                    // onClose()
+                    closer()
+                    toast.success('User Added successfully', {
+                        position: "top-right",
+                        autoClose: 5000,
+                        hideProgressBar: true,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "dark",
+                        transition: Slide,
+                    });
+                } catch (error: any) {
+                    const msg = error?.response?.data?.msg || 'something went wrong try again'
+                    toast.error(msg, {
+                        position: "top-right",
+                        autoClose: 5000,
+                        hideProgressBar: true,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "dark",
+                        transition: Slide,
+                    });
+
+                }
+            }
+        } catch (error: any) {
+
+            const validationErrors: FormErrors = {
+                first_name: "",
+                last_name: "",
+                address_line_1: "",
+                address_line_2: "",
+                city: "",
+                country: "",
+                email_id: "",
+                password: "",
+                phone_number: "",
+                role: "",
+                state: "",
+                zip_code: ""
+            };
+            if (error instanceof yup.ValidationError) {
+                error.inner.forEach((err: any) => {
+                    validationErrors[err.path] = err.message;
                 });
             }
-
-        } else {
-            try {
-                const { data: res } = await axios.post(`/users/`, data, { headers: { Authorization: `Bearer ${token}` } })
-                console.log(res, "res")
-                setRefresh(!refresh)
-                reset()
-                onClose()
-                toast.success('User Added successfully', {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: true,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "dark",
-                    transition: Slide,
-                });
-            } catch (error: any) {
-                const msg = error?.response?.data?.msg || 'something went wrong try again'
-                toast.error(msg, {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: true,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "dark",
-                    transition: Slide,
-                });
-
-            }
+            setErrors(validationErrors);
         }
+
+
 
 
     };
@@ -225,26 +343,26 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
             backdrop="blur"
             onOpenChange={onOpenChange}
         >
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={onSubmit}>
                 <ModalContent>
                     {(onClose) => (
                         <>
                             <HeaderComponent />
-
-
                             <ModalBody style={{ overflowY: 'scroll' }}>
                                 <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
                                     <Input
-                                        defaultValue={initialData.email_id}
+                                        onChange={handleChange}
+                                        value={formData.email_id}
+                                        // defaultValue={initialData.email_id}
                                         placeholder="Please enter your email address"
                                         isDisabled={mode === 'view'}
-                                        {...register("email_id")}
-                                        errorMessage={errors?.email_id && errors?.email_id?.message}
+                                        // {...register("email_id")}
+                                        name="email_id"
+                                        errorMessage={errors?.email_id && errors?.email_id}
                                         labelPlacement="outside"
                                         startContent={
                                             <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
                                         }
-
                                         type="email"
                                         label="Email*"
                                     />
@@ -252,10 +370,13 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                                     {
                                         mode === "add" && (
                                             <Input
+                                                onChange={handleChange}
                                                 startContent={<></>}
                                                 placeholder="6 letter and one special character and Capital"
-                                                errorMessage={errors.password && errors.password.message}
+                                                errorMessage={errors.password && errors.password}
                                                 labelPlacement="outside"
+                                                name="password"
+                                                value={formData.password}
                                                 endContent={
                                                     <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
                                                         {isVisible ? (
@@ -267,7 +388,7 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                                                 }
                                                 type={isVisible ? "text" : "password"}
                                                 label="Password*"
-                                                {...register("password", { required: true })}
+                                            // {...register("password", { required: true })}
                                             />
                                         )
                                     }
@@ -278,38 +399,47 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                                 <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
 
                                     <Input
+                                        onChange={handleChange}
                                         startContent={<></>}
                                         isDisabled={mode === "view"}
-                                        defaultValue={initialData?.first_name}
+                                        // defaultValue={initialData?.first_name}
                                         labelPlacement="outside"
-                                        errorMessage={errors.first_name && errors.first_name.message}
+                                        errorMessage={errors.first_name && errors.first_name}
                                         type="text"
                                         label="First Name*"
                                         placeholder="Enter your first name"
-                                        {...register("first_name")}
+                                        name="first_name"
+                                        value={formData.first_name}
+                                    // {...register("first_name")}
                                     />
 
                                     <Input
+                                        onChange={handleChange}
                                         startContent={<></>}
-                                        errorMessage={errors.last_name && errors.last_name.message}
+                                        errorMessage={errors.last_name && errors.last_name}
                                         isDisabled={mode === "view"}
-                                        defaultValue={initialData?.last_name}
+                                        // defaultValue={initialData?.last_name}
                                         labelPlacement="outside"
                                         placeholder="Enter your last name"
                                         type="text"
                                         label="Last Name"
-                                        {...register("last_name")}
+                                        name="last_name"
+                                        value={formData.last_name}
+                                    // {...register("last_name")}
                                     />
 
                                     <Select
-                                        errorMessage={errors.role && errors.role.message}
+                                        onChange={handleChange}
+                                        errorMessage={errors.role && errors.role}
                                         unselectable="off"
                                         isDisabled={mode === "view"}
-                                        defaultSelectedKeys={mode === "view" || mode === "edit" ? [initialData?.role?.id] : []}
+                                        // defaultSelectedKeys={mode === "view" || mode === "edit" ? [initialData?.role?.id] : []}
                                         label="Role*"
                                         placeholder={"Please select Role"}
                                         labelPlacement="outside"
-                                        {...register("role",)}
+                                        name="role"
+                                        selectedKeys={[formData?.role]}
+                                    // {...register("role",)}
                                     >
                                         {/* {label: "Giraffe", value: "giraffe", description: "The tallest land animal"} */}
                                         {roles.map((role: RoleType) => (
@@ -327,42 +457,51 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                                 <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
 
                                     <Input
-                                        errorMessage={errors.phone_number && errors.phone_number.message}
+                                        errorMessage={errors.phone_number && errors.phone_number}
                                         placeholder="Enter your Phone number without country code"
                                         startContent={<></>}
                                         isDisabled={mode === "view"}
-                                        defaultValue={initialData.phone_number}
+                                        // defaultValue={initialData.phone_number}
                                         endContent={<></>}
                                         labelPlacement="outside"
                                         type="number"
                                         label="Phone*"
-                                        {...register("phone_number", { required: true })}
+                                        value={formData.phone_number}
+                                        name="phone_number"
+                                        onChange={handleChange}
+                                    // {...register("phone_number", { required: true })}
                                     />
 
                                     <Input
-                                        errorMessage={errors.city && errors.city.message}
+                                        errorMessage={errors.city && errors.city}
                                         placeholder="Enter your City"
                                         startContent={<></>}
                                         isDisabled={mode === "view"}
-                                        defaultValue={initialData.city}
+                                        // defaultValue={initialData.city}
                                         endContent={<></>}
                                         labelPlacement="outside"
                                         type="text"
                                         label="city"
-                                        {...register("city", { required: true })}
+                                        name="city"
+                                        value={formData.city}
+                                        onChange={handleChange}
+                                    // {...register("city", { required: true })}
                                     />
 
                                     <Input
-                                        errorMessage={errors.state && errors.state.message}
+                                        errorMessage={errors.state && errors.state}
                                         placeholder="Enter your State"
                                         startContent={<></>}
                                         isDisabled={mode === "view"}
-                                        defaultValue={initialData.state}
+                                        // defaultValue={initialData.state}
                                         endContent={<></>}
                                         labelPlacement="outside"
                                         type="text"
                                         label="state"
-                                        {...register("state", { required: true })}
+                                        name="state"
+                                        value={formData.state}
+                                        onChange={handleChange}
+                                    // {...register("state", { required: true })}
                                     />
 
                                 </div>
@@ -370,30 +509,36 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                                 <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
 
                                     <Input
-                                        errorMessage={errors.country && errors.country.message}
+                                        errorMessage={errors.country && errors.country}
                                         placeholder="Enter your country"
                                         startContent={<></>}
                                         isDisabled={mode === "view"}
-                                        defaultValue={initialData.country}
+                                        // defaultValue={initialData.country}
                                         endContent={<></>}
                                         labelPlacement="outside"
                                         type="text"
                                         label="Country"
-                                        {...register("country", { required: true })}
+                                        name="country"
+                                        value={formData.country}
+                                        onChange={handleChange}
+                                    // {...register("country", { required: true })}
                                     />
 
 
                                     <Input
-                                        errorMessage={errors.zip_code && errors.zip_code.message}
-                                        placeholder="Enter your zip code"
+                                        errorMessage={errors.zip_code && errors.zip_code}
+                                        // placeholder="Enter your zip code"
                                         startContent={<></>}
                                         isDisabled={mode === "view"}
-                                        defaultValue={initialData.zip_code}
+                                        // defaultValue={initialData.zip_code}
                                         endContent={<></>}
                                         labelPlacement="outside"
                                         type="number"
                                         label="Zip code"
-                                        {...register("zip_code")}
+                                        value={formData.zip_code}
+                                        name="zip_code"
+                                        onChange={handleChange}
+                                    // {...register("zip_code")}
                                     />
 
                                 </div>
@@ -401,38 +546,41 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                                 <div>
 
                                     <Textarea
-                                        errorMessage={errors.address_line_1 && errors.address_line_1.message}
+                                        errorMessage={errors.address_line_1 && errors.address_line_1}
                                         startContent={<></>}
                                         placeholder="Write your address here"
                                         isDisabled={mode === "view"}
-                                        defaultValue={initialData.address_line_1}
+                                        // defaultValue={initialData.address_line_1}
                                         endContent={<></>}
                                         labelPlacement="outside"
                                         type="text"
                                         label="Address"
-                                        {...register("address_line_1")}
+                                        name="address_line_1"
+                                        value={formData.address_line_1}
+                                        onChange={handleChange}
+                                    // {...register("address_line_1")}
                                     />
 
                                     <Textarea
-                                        errorMessage={errors.address_line_2 && errors.address_line_2.message}
+                                        errorMessage={errors.address_line_2 && errors.address_line_2}
                                         startContent={<></>}
                                         placeholder="Write your second address here"
                                         isDisabled={mode === "view"}
-                                        defaultValue={initialData.address_line_2}
+                                        // defaultValue={initialData.address_line_2}
                                         endContent={<></>}
                                         labelPlacement="outside"
                                         type="text"
                                         label="Secondary Address"
-                                        {...register("address_line_2")}
+                                        name="address_line_2"
+                                        value={formData.address_line_2}
+                                        onChange={handleChange}
+                                    // {...register("address_line_2")}
                                     />
-
-
-
                                 </div>
                             </ModalBody>
 
                             <ModalFooter>
-                                <Button color="danger" variant="light" onPress={onClose}>
+                                <Button color="danger" variant="light" onPress={closer}>
                                     Close
                                 </Button>
                                 <ButtonComponent />
