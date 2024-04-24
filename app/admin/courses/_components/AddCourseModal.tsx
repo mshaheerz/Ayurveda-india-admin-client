@@ -24,6 +24,7 @@ interface AddCourseProps {
 interface Module {
     name: string;
     description: string;
+    id?:string;
 }
 
 
@@ -60,7 +61,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
     };
 
 
-    const removeTheoryModule = async (index: number, id: string) => {
+    const removeTheoryModule = async (index: number, id: any) => {
 
         if (mode === "edit") {
             try {
@@ -107,7 +108,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
         setPractical_Modules([...practical_modules, { name: '', description: '' }]);
     };
 
-    const removeModule = async(index: number,id:string) => {
+    const removeModule = async(index: number,id:any) => {
         if (mode === "edit") {
             try {
                 const formData = new FormData()
