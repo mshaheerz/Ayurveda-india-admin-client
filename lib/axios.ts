@@ -2,7 +2,7 @@ import axios from 'axios';
 import { signOut } from 'next-auth/react';
 
 const instance = axios.create({
-  baseURL: process.env.API, // Replace with your actual base URL
+  baseURL: "https://muhammedrahil.pythonanywhere.com/api/", // Replace with your actual base URL
 });
 
 // instance.interceptors.request.use((config) => {
