@@ -82,7 +82,7 @@ export default function ManageUserPage() {
                 roleName: user.role.name,
                 role: undefined // Remove the original role object
             }));
-            setCurrentPage(data.current_page)
+            setCurrentPage(prevPage => data.current_page !== prevPage ? data.current_page : prevPage);
             setUsers(transformedUsers)
             setTotalCount(data.total)
             setTotalPages(data.total_pages)
