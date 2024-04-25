@@ -1,5 +1,5 @@
+import { base_url } from '@/app/constatnts'
 import React from 'react'
-
 function ViewImages({imageStore}:any) {
   return (
     <>
@@ -7,7 +7,7 @@ function ViewImages({imageStore}:any) {
                 {
                     imageStore.length > 0 && imageStore.map((image:any, index: number) => (
                         <div className="h-32 flex relative" key={index}>
-                            <img className="rounded-2xl w-full object-cover " src={image.image} alt="err" />
+                            <img className="rounded-2xl w-full object-cover " src={`${base_url}${image.image}`} alt="err" />
                            
                         </div>
                     ))

@@ -88,7 +88,8 @@ export default function CoursePage() {
                 }
             })
 
-            setCurrentPage(data.current_page)
+            // setCurrentPage(data.current_page)
+            setCurrentPage(prevPage => data.current_page !== prevPage ? data.current_page : prevPage);
             setTotalCount(data.total)
             setTotalPages(data.total_pages)
             setcourses(data.data)
@@ -205,7 +206,7 @@ export default function CoursePage() {
             // filteredcourses = filteredcourses.filter((user: Course) =>
             //     user?.name.toLowerCase().includes(filterValue.toLowerCase()),
             // );
-            setRefresh((prev) => !prev)
+            // setRefresh((prev) => !prev)
         }
         // if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
         //     filteredcourses = filteredcourses.filter((user: Course) =>

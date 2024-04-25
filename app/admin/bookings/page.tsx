@@ -87,7 +87,7 @@ export default function BookingPage() {
                 }
             })
 
-            setCurrentPage(data.current_page)
+            setCurrentPage(prevPage => data.current_page !== prevPage ? data.current_page : prevPage);
             setTotalCount(data.total)
             setTotalPages(data.total_pages)
             setbookings(data.data)
@@ -204,7 +204,7 @@ export default function BookingPage() {
             // filteredbookings = filteredbookings.filter((user: Course) =>
             //     user?.name.toLowerCase().includes(filterValue.toLowerCase()),
             // );
-            setRefresh((prev) => !prev)
+            // setRefresh((prev) => !prev)
         }
         // if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
         //     filteredbookings = filteredbookings.filter((user: Course) =>
