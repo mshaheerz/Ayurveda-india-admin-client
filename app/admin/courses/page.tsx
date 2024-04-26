@@ -97,11 +97,12 @@ export default function CoursePage() {
             setTotalCount(data.total)
             setTotalPages(data.total_pages)
             setcourses(data.data)
+            setLoading(false)
       
 
         } catch (error) {
             console.log(error)
-            setLoading(true)
+            setLoading(false)
         
         }finally {
             // setLoading(false)

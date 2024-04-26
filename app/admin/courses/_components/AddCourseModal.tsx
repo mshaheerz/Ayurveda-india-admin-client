@@ -7,6 +7,8 @@ import axios from "@/lib/axios";
 import { Slide, toast } from "react-toastify";
 import PhotosEditor from "./PhotoEditor";
 import ViewImages from "./ViewImages";
+import LoadingOverlay from "@/components/common/OverLayLoading";
+
 
 interface AddCourseProps {
     isOpen: boolean;
@@ -49,11 +51,14 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
     const [timeLineType, setTimeLineType] = useState("full_day")
 
 
+ 
     const handleTheoryModuleChange = (index: number, field: keyof Module, value: string) => {
         const updatedModules = [...theory_modules];
         updatedModules[index][field] = value;
         setTheory_Modules(updatedModules);
     };
+
+    const [loading,setLoading] = useState(true)
 
 
     const addTheoryModule = () => {
@@ -377,7 +382,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
     };
 
 
-
+   
 
     // Function to show/hide time inputs based on timeline_type
     const RenderTimeInputs = () => {
@@ -590,6 +595,8 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                 }}
 
             >
+
+                <LoadingOverlay show={loading} />
                 <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
                     <ModalContent>
                         {(onClose) => (
@@ -676,7 +683,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             defaultSelectedKeys={[initialData.duration_type]}
                                             label="Duration Type*"
                                             labelPlacement="outside"
-                                            {...register("duration_type",{ required: true })}
+                                            {...register("duration_type", { required: true })}
                                         >
                                             <SelectItem key={"day"} value="day">day</SelectItem>
                                             <SelectItem key={"days"} value="days">days</SelectItem>
@@ -706,7 +713,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             label="Price"
                                             labelPlacement="outside"
                                             type="number"
-                                            {...register("actual_course_price",{ required: true })}
+                                            {...register("actual_course_price", { required: true })}
                                         />
                                         <Input
                                             defaultValue={initialData.offer_persentage}
@@ -787,7 +794,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                                 </div>
                                             )
                                         }
-   
+
 
                                         {
                                             mode == "view" && (
@@ -908,7 +915,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                         }
 
                                         {
-                                           ( mode == "edit" || mode == "add") && (
+                                            (mode == "edit" || mode == "add") && (
                                                 <div className="flex justify-center items-center">
                                                     {(!practical_modules || practical_modules.length === 0) && ( // Check if there are no fields
                                                         <Button type="button" size="lg" className="p-12" variant="ghost" endContent={<PlusCircleIcon color="green" />}
