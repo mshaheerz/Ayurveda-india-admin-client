@@ -1,5 +1,5 @@
 
-import type { Metadata } from 'next'
+
 import './globals.css'
 import "./data-tables-css.css";
 import "./satoshi.css";

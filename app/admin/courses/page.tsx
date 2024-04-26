@@ -33,6 +33,8 @@ import { useSession } from "next-auth/react";
 import AddCourseModal from "./_components/AddCourseModal";
 import { CheckIcon, CrossIcon, CrosshairIcon, XIcon } from "lucide-react";
 import { Slide, toast } from "react-toastify";
+import Loader from "@/components/common/Loader";
+import SpinLoader from "@/components/common/spinLoader";
 
 
 //global variables
@@ -72,6 +74,7 @@ export default function CoursePage() {
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPage, setTotalPages] = useState(1)
     const [totalCount, setTotalCount] = useState(0)
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         getCourse()
@@ -81,6 +84,7 @@ export default function CoursePage() {
     //fetch course
     const getCourse = async () => {
         console.log(session?.user)
+        setLoading(true)
         try {
             const { data } = await axios.get(`/course/?page=${currentPage}`, {
                 headers: {
@@ -93,10 +97,16 @@ export default function CoursePage() {
             setTotalCount(data.total)
             setTotalPages(data.total_pages)
             setcourses(data.data)
+      
 
         } catch (error) {
             console.log(error)
+            setLoading(true)
+        
+        }finally {
+            // setLoading(false)
         }
+        
     }
 
     // handle modal open view, edit
@@ -374,6 +384,7 @@ export default function CoursePage() {
     const topContent = React.useMemo(() => {
         return (
             <div className="flex flex-col gap-4">
+               
                 <div className="flex justify-between  gap-3 items-end">
                     <Input
                         isClearable
@@ -514,6 +525,12 @@ export default function CoursePage() {
         );
     }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
+
+
+
+    if(loading){
+        return  <SpinLoader />
+    }
 
 
     //main component return

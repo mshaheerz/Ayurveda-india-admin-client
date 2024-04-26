@@ -24,7 +24,7 @@ interface AddCourseProps {
 interface Module {
     name: string;
     description: string;
-    id?:string;
+    id?: string;
 }
 
 
@@ -64,10 +64,17 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
     const removeTheoryModule = async (index: number, id: any) => {
 
         if (mode === "edit") {
+
+            if (!id) {
+                const updatedModules = [...theory_modules];
+                updatedModules.splice(index, 1);
+                setTheory_Modules(updatedModules);
+                return ""
+            }
             try {
 
                 const formData = new FormData()
-                formData.append("id",id)
+                formData.append("id", id)
 
 
                 await axios.delete('/course/delete_module/', {
@@ -108,11 +115,17 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
         setPractical_Modules([...practical_modules, { name: '', description: '' }]);
     };
 
-    const removeModule = async(index: number,id:any) => {
+    const removeModule = async (index: number, id: any) => {
         if (mode === "edit") {
             try {
+                if (!id) {
+                    const updatedModules = [...practical_modules];
+                    updatedModules.splice(index, 1);
+                    setPractical_Modules(updatedModules);
+                    return ''
+                }
                 const formData = new FormData()
-                formData.append("id",id)
+                formData.append("id", id)
 
                 await axios.delete('/course/delete_practical/', {
                     data: formData,
@@ -606,7 +619,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                         <Input
                                             defaultValue={initialData.name}
                                             disabled={mode === 'view'}
-                                            label="Name"
+                                            label="Name*"
                                             errorMessage={errors.name && "Name is required"}
                                             labelPlacement="outside"
                                             type="text"
@@ -618,7 +631,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             defaultValue={initialData.short_name}
                                             disabled={mode === 'view'}
                                             errorMessage={errors.short_name && "Short name is required"}
-                                            label="Short Name"
+                                            label="Short Name*"
                                             labelPlacement="outside"
                                             type="text"
                                             {...register("short_name", { required: true })}
@@ -631,7 +644,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             defaultValue={initialData.description}
                                             disabled={mode === 'view'}
                                             errorMessage={errors.description && "Description is required"}
-                                            label="Description"
+                                            label="Description*"
                                             labelPlacement="outside"
                                             {...register("description", { required: true })}
                                         />
@@ -642,15 +655,15 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             defaultValue={initialData.location}
                                             disabled={mode === 'view'}
                                             errorMessage={errors.location && "Location is required"}
-                                            label="Location"
+                                            label="Location*"
                                             labelPlacement="outside"
                                             type="text"
-                                            {...register("location", { required: true })}
+                                            {...register("location")}
                                         />
                                         <Input
                                             defaultValue={initialData.duration}
                                             disabled={mode === 'view'}
-                                            label="Duration"
+                                            label="Duration*"
                                             labelPlacement="outside"
                                             type="number"
                                             {...register("duration", { required: true })}
@@ -661,9 +674,9 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
                                             isDisabled={mode === 'view'}
                                             defaultSelectedKeys={[initialData.duration_type]}
-                                            label="Duration Type"
+                                            label="Duration Type*"
                                             labelPlacement="outside"
-                                            {...register("duration_type", { required: true })}
+                                            {...register("duration_type",{ required: true })}
                                         >
                                             <SelectItem key={"day"} value="day">day</SelectItem>
                                             <SelectItem key={"days"} value="days">days</SelectItem>
@@ -681,7 +694,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             label="Seats Available"
                                             labelPlacement="outside"
                                             type="number"
-                                            {...register("seats_available", { required: true })}
+                                            {...register("seats_available")}
                                         />
 
                                     </div>
@@ -693,7 +706,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             label="Price"
                                             labelPlacement="outside"
                                             type="number"
-                                            {...register("actual_course_price", { required: true })}
+                                            {...register("actual_course_price",{ required: true })}
                                         />
                                         <Input
                                             defaultValue={initialData.offer_persentage}
@@ -701,7 +714,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             label="Offer Percentage"
                                             labelPlacement="outside"
                                             type="number"
-                                            {...register("offer_persentage", { required: true })}
+                                            {...register("offer_persentage")}
                                         />
 
                                         {/* Timeline Type */}
@@ -712,7 +725,6 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             label="Timeline Type"
                                             onChange={(e) => setTimeLineType(e.target.value)}
                                             labelPlacement="outside"
-                                            required={true}
                                         >
                                             <SelectItem key="full_day" value="full_day">Full Day</SelectItem>
                                             <SelectItem key="half_day" value="half_day">Half Day</SelectItem>
@@ -762,17 +774,20 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                         }
 
                                         {
-                                            mode == "edit" || mode == "add" && (
+                                            (mode == "edit" || mode == "add") && (
                                                 <div className="flex justify-center items-center">
                                                     {
-                                                        theory_modules.length === 0 && (<Button size="lg" className="p-12" type="button" endContent={<PlusCircleIcon color="green" />} variant="ghost" onClick={addTheoryModule}>
+                                                        (!theory_modules || theory_modules.length === 0) && (<Button size="lg" className="p-12" type="button" endContent={<PlusCircleIcon color="green" />} variant="ghost" onClick={addTheoryModule}>
                                                             Add Theory Modules
-                                                        </Button>)
+                                                        </Button>
+                                                        )
                                                     }
+
 
                                                 </div>
                                             )
                                         }
+   
 
                                         {
                                             mode == "view" && (
@@ -893,9 +908,9 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                         }
 
                                         {
-                                            mode == "edit" || mode == "add" && (
+                                           ( mode == "edit" || mode == "add") && (
                                                 <div className="flex justify-center items-center">
-                                                    {practical_modules.length === 0 && ( // Check if there are no fields
+                                                    {(!practical_modules || practical_modules.length === 0) && ( // Check if there are no fields
                                                         <Button type="button" size="lg" className="p-12" variant="ghost" endContent={<PlusCircleIcon color="green" />}
                                                             // onClick={() => appendPractical({ name: '', description: '' })}
                                                             onClick={addModule}
@@ -966,7 +981,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                                         <div>
                                                             <Trash2Icon color="red" height={"20px"} className="mt-6 cursor-pointer"
                                                                 // onClick={() => removePractical(index)} 
-                                                                onClick={() => removeModule(index,module.id)}
+                                                                onClick={() => removeModule(index, module.id)}
                                                             />
                                                         </div>
 
