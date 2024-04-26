@@ -21,7 +21,7 @@ import {
     SortDescriptor,
     useDisclosure
 } from "@nextui-org/react";
-import { columns, users, statusOptions } from "./data";
+import { columns, users } from "./data";
 import { capitalize } from "@/lib/utils";
 import { PlusIcon } from "@/components/custom-icons/PlusIcon";
 import { VerticalDotsIcon } from "@/components/custom-icons/VerticalDotsIcon";
@@ -32,7 +32,6 @@ import AddUserModal from "./_components/AddUserModal";
 import axios from "@/lib/axios";
 import { useSession } from "next-auth/react";
 import { Slide, toast } from "react-toastify";
-import { type } from "os";
 
 //global variables
 const statusColorMap: Record<string, ChipProps["color"]> = {
@@ -64,10 +63,26 @@ export default function ManageUserPage() {
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPage, setTotalPages] = useState(1)
     const [totalCount, setTotalCount] = useState(0)
+    const [errors, setErrors] = useState({
+        first_name: "",
+        last_name: "",
+        address_line_1: "",
+        address_line_2: "",
+        city: "",
+        country: "",
+        email_id: "",
+        password: "",
+        phone_number: "",
+        role: "",
+        state: "",
+        zip_code: "",
+    })
 
     useEffect(() => {
         getUsers()
     }, [refresh, currentPage]);
+
+
 
     const getUsers = async () => {
         try {
@@ -98,13 +113,31 @@ export default function ManageUserPage() {
             try {
                 const { data } = await axios.get(`/users/${user.id}/`, { headers: { Authorization: `Bearer ${session?.user.access_token}` } })
                 setFormData(data)
-                console.log(data, "foooo")
                 onOpen()
             } catch (error) {
                 console.log(error)
             }
         }
     }
+
+
+    const resetErrors = () => {
+        setErrors({
+            first_name: "",
+            last_name: "",
+            address_line_1: "",
+            address_line_2: "",
+            city: "",
+            country: "",
+            email_id: "",
+            password: "",
+            phone_number: "",
+            role: "",
+            state: "",
+            zip_code: "",
+        })
+    }
+
 
     //delete handler
     const handleDelete = async (id: string) => {
@@ -114,7 +147,6 @@ export default function ManageUserPage() {
                     Authorization: `Bearer ${session?.user.access_token}`
                 }
             })
-            console.log(data)
             setRefresh((prev) => !prev)
             toast.success('Deleted successfully', {
                 position: "top-right",
@@ -152,7 +184,6 @@ export default function ManageUserPage() {
                     Authorization: `Bearer ${session?.user?.access_token}`
                 }
             })
-            console.log(data)
             setRefresh((prev) => !prev)
             toast.success('Status changed successfully', {
                 position: "top-right",
@@ -198,7 +229,7 @@ export default function ManageUserPage() {
             // filteredUsers = filteredUsers.filter((user: User) =>
             //     user?.email_id.toLowerCase().includes(filterValue.toLowerCase()),
             // );
-            
+
             // setRefresh((prev) => !prev)
 
 
@@ -226,14 +257,12 @@ export default function ManageUserPage() {
             const first = a[sortDescriptor.column as keyof User] as string;
             const second = b[sortDescriptor.column as keyof User] as string;
             const cmp = first < second ? -1 : first > second ? 1 : 0;
-
             return sortDescriptor.direction === "descending" ? -cmp : cmp;
         });
     }, [sortDescriptor, items]);
 
     const renderCell = React.useCallback((user: User, columnKey: React.Key) => {
         const cellValue = user[columnKey as keyof User];
-
         switch (columnKey) {
             case "email_id":
                 return (
@@ -416,6 +445,7 @@ export default function ManageUserPage() {
                             </DropdownMenu>
                         </Dropdown>
                         <Button color="primary" onPress={() => {
+                            resetErrors()
                             setFormData({
                                 "email_id": "",
                                 "phone_number": "",
@@ -502,7 +532,7 @@ export default function ManageUserPage() {
     return (
         <>
             <Breadcrumb pageName="Manage users" />
-            <AddUserModal isOpen={isOpen} onOpen={onOpen} onOpenChange={onOpenChange} token={session?.user.access_token} refresh={refresh} setRefresh={setRefresh} onClose={onClose} mode={mode} initialData={formData} />
+            <AddUserModal isOpen={isOpen} onOpen={onOpen} onOpenChange={onOpenChange} token={session?.user.access_token} refresh={refresh} setRefresh={setRefresh} onClose={onClose} mode={mode} initialData={formData} errors={errors} setErrors={setErrors} />
             <div>
                 <Table
                     aria-label="Example table with custom cells, pagination and sorting"

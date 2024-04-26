@@ -3,7 +3,7 @@ import { VisuallyHidden } from "@nextui-org/react";
 import React from "react";
 
 const columns = [
-  { name: "ID", uid: "id" },
+  // { name: "ID", uid: "id" },
   { name: "Email", uid: "email_id", sortable: true },
   { name: "First name", uid: "first_name", sortable: true },
   { name: "Last name", uid: "last_name" },

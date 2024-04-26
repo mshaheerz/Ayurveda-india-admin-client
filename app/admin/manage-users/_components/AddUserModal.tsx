@@ -1,11 +1,13 @@
-import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem, Textarea, useDisclosure } from "@nextui-org/react";
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem, Textarea } from "@nextui-org/react";
 import axios from "@/lib/axios";
-import { EyeIcon, EyeOffIcon, LockIcon, MailIcon } from "lucide-react";
-import { ChangeEvent, ChangeEventHandler, useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { EyeIcon, EyeOffIcon, MailIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Slide, toast } from "react-toastify";
 import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
+import FormLabel from "@/components/Formhelpers/FormLabel";
+
+
+
 interface AddUserProps {
     isOpen: boolean;
     onOpen: () => void;
@@ -16,6 +18,8 @@ interface AddUserProps {
     onClose: any;
     mode: string;
     initialData: any;
+    errors: any;
+    setErrors: any;
 }
 
 interface RoleType {
@@ -56,25 +60,16 @@ interface FormErrors {
 }
 
 
-function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh, onClose, mode, initialData }: AddUserProps) {
+function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh, onClose, mode, initialData, errors, setErrors }: AddUserProps) {
+
+
     const [formData, setFormData] = useState<FormDataType>({ ...initialData, role: initialData?.role?.id })
-    const [errors, setErrors] = useState({
-        first_name: "",
-        last_name: "",
-        address_line_1: "",
-        address_line_2: "",
-        city: "",
-        country: "",
-        email_id: "",
-        password: "",
-        phone_number: "",
-        role: "",
-        state: "",
-        zip_code: "",
-    })
+    const [roles, setRoles] = useState([])
+    const [isVisible, setIsVisible] = useState(false);
+    const toggleVisibility = () => setIsVisible(!isVisible);
 
 
-
+    //input field schema
     const validationSchema = yup.object().shape({
         email_id: yup.string().email().required('Email is a required field'),
         password: mode === "edit" ? yup
@@ -99,88 +94,48 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                 /^[0-9]{10}$/,
                 'Invalid phone number. Please enter a 10-digit phone number without spaces or special characters.'
             ),
-        city: yup.string().required('city is required'),
+        city: yup.string().notRequired(),
         zip_code: yup.string().notRequired(),
-        state: yup.string().required('State is required'),
-        country: yup.string().required('country is required'),
+        state: yup.string().notRequired(),
+        country: yup.string().notRequired(),
         address_line_1: yup.string().required('Address is required field'),
         address_line_2: yup.string().notRequired()
     },
     );
 
 
-    // const { register, control, handleSubmit, reset, formState: { errors } } = useForm({
-    //     resolver: yupResolver(validationSchema),
-    //     defaultValues: useMemo(() => {
-    //         return {
-    //             first_name: "foo",
-    //             last_name: "fppfdsaf",
-    //             address_line_1: "fsorry",
-    //             address_line_2: "cdc",
-    //             city: "sds",
-    //             country: "ssc",
-    //             email_id: "sorr",
-    //             password: "fdsda",
-    //             phone_number: "fddf",
-    //             role: "fdfdf",
-    //             state: "dfsfdsa",
-    //             zip_code: "233"
-    //         }
-    //     }, [initialData])
-    // });
-
     useEffect(() => {
         setFormData({ ...initialData, role: initialData?.role?.id })
     }, [initialData])
 
-    // useEffect(() => {
-    //     console.log("me worked daaaaaaaaa")
 
-    //         reset(initialData);  // Reset form with initial data when modal opens
-    //         reset({ role: initialData?.role?.id })
-
-    //         // Set default value for uncontrolled input (Textarea)
-
-    // }, [isOpen,onclose, reset, initialData,onOpen]);
-
-
-
-    const closer = () => {
-        // reset({})
-        onClose()
-    }
-
-
-
-    const [roles, setRoles] = useState([])
     useEffect(() => {
         getRoles()
     }, [])
 
+
     const getRoles = async () => {
         try {
-            const { data } = await axios.get('/roles/', {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-            console.log(data)
+
+            const { data } = await axios.get('/roles/',
+                {
+                    headers: { Authorization: `Bearer ${token}` }
+                }
+            )
             const labelized = data.map((dat: { id: string, name: string }) => {
                 return ({
                     label: dat.name,
                     value: dat.id
                 })
-
             })
             setRoles(labelized)
-
-
         } catch (error) {
             console.log(error)
         }
 
     }
     // const roles = [{ label: "admin", value: "admin" }, { label: "super admin", value: "super-admin" }]
-    const [isVisible, setIsVisible] = useState(false);
-    const toggleVisibility = () => setIsVisible(!isVisible);
+
 
     const handleChange = (e: any) => {
         const { name, value } = e.target;
@@ -190,10 +145,13 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
         }));
     };
 
+    const closer = () => {
+        onClose()
+    }
+
     const onSubmit = async (e: any) => {
         e.preventDefault()
-
-        let data:FormDataType = formData
+        let data: FormDataType = formData
         delete data.profile_image
 
         try {
@@ -205,9 +163,6 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                 try {
                     const { data: res } = await axios.put(`/users/${initialData.id}/`, data, { headers: { Authorization: `Bearer ${token}` } })
                     setRefresh(!refresh)
-                    // reset({})
-
-                    // onClose()
                     closer()
                     toast.success('Successfully edited', {
                         position: "top-right",
@@ -241,8 +196,6 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                     const { data: res } = await axios.post(`/users/`, data, { headers: { Authorization: `Bearer ${token}` } })
                     console.log(res, "res")
                     setRefresh(!refresh)
-                    // reset({})
-                    // onClose()
                     closer()
                     toast.success('User Added successfully', {
                         position: "top-right",
@@ -272,7 +225,6 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                 }
             }
         } catch (error: any) {
-
             const validationErrors: FormErrors = {
                 first_name: "",
                 last_name: "",
@@ -294,10 +246,6 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
             }
             setErrors(validationErrors);
         }
-
-
-
-
     };
 
     const HeaderComponent = () => {
@@ -315,6 +263,7 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
             )
         }
     }
+
     const ButtonComponent = () => {
         if (mode == "add") {
             return (
@@ -353,18 +302,17 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                                     <Input
                                         onChange={handleChange}
                                         value={formData.email_id}
-                                        // defaultValue={initialData.email_id}
                                         placeholder="Please enter your email address"
                                         isDisabled={mode === 'view'}
-                                        // {...register("email_id")}
                                         name="email_id"
+                                        maxLength={60}
                                         errorMessage={errors?.email_id && errors?.email_id}
                                         labelPlacement="outside"
                                         startContent={
                                             <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
                                         }
                                         type="email"
-                                        label="Email*"
+                                        label={<FormLabel label="Email" symbolEnable={true} />}
                                     />
 
                                     {
@@ -376,6 +324,7 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                                                 errorMessage={errors.password && errors.password}
                                                 labelPlacement="outside"
                                                 name="password"
+                                                maxLength={60}
                                                 value={formData.password}
                                                 endContent={
                                                     <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
@@ -387,13 +336,10 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                                                     </button>
                                                 }
                                                 type={isVisible ? "text" : "password"}
-                                                label="Password*"
-                                            // {...register("password", { required: true })}
+                                                label={<FormLabel label="Password" symbolEnable={true} />}
                                             />
                                         )
                                     }
-
-
                                 </div>
 
                                 <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
@@ -402,15 +348,14 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                                         onChange={handleChange}
                                         startContent={<></>}
                                         isDisabled={mode === "view"}
-                                        // defaultValue={initialData?.first_name}
                                         labelPlacement="outside"
                                         errorMessage={errors.first_name && errors.first_name}
                                         type="text"
-                                        label="First Name*"
+                                        label={<FormLabel label="First Name" symbolEnable={true} />}
                                         placeholder="Enter your first name"
                                         name="first_name"
+                                        maxLength={60}
                                         value={formData.first_name}
-                                    // {...register("first_name")}
                                     />
 
                                     <Input
@@ -418,30 +363,27 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                                         startContent={<></>}
                                         errorMessage={errors.last_name && errors.last_name}
                                         isDisabled={mode === "view"}
-                                        // defaultValue={initialData?.last_name}
                                         labelPlacement="outside"
                                         placeholder="Enter your last name"
                                         type="text"
-                                        label="Last Name"
+                                        label={<FormLabel label="Last Name" symbolEnable={true} />}
                                         name="last_name"
+                                        maxLength={60}
                                         value={formData.last_name}
-                                    // {...register("last_name")}
                                     />
 
                                     <Select
                                         onChange={handleChange}
                                         errorMessage={errors.role && errors.role}
-                                        unselectable="off"
+                                        // unselectable="on"
                                         isDisabled={mode === "view"}
-                                        // defaultSelectedKeys={mode === "view" || mode === "edit" ? [initialData?.role?.id] : []}
-                                        label="Role*"
-                                        placeholder={"Please select Role"}
+                                        label={<FormLabel label="Role" symbolEnable={true} />}
+                                        placeholder="Please select Role"
                                         labelPlacement="outside"
                                         name="role"
-                                        selectedKeys={[formData?.role|| ""]}
-                                    // {...register("role",)}
+                                        
+                                        // selectedKeys={[formData?.role || ""]}
                                     >
-                                        {/* {label: "Giraffe", value: "giraffe", description: "The tallest land animal"} */}
                                         {roles.map((role: RoleType) => (
                                             <SelectItem
                                                 key={role.value}
@@ -461,15 +403,14 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                                         placeholder="Enter your Phone number without country code"
                                         startContent={<></>}
                                         isDisabled={mode === "view"}
-                                        // defaultValue={initialData.phone_number}
                                         endContent={<></>}
                                         labelPlacement="outside"
                                         type="number"
-                                        label="Phone*"
+                                        label={<FormLabel label="Phone" symbolEnable={true} />}
                                         value={formData.phone_number}
                                         name="phone_number"
+                                        maxLength={10}
                                         onChange={handleChange}
-                                    // {...register("phone_number", { required: true })}
                                     />
 
                                     <Input
@@ -477,15 +418,14 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                                         placeholder="Enter your City"
                                         startContent={<></>}
                                         isDisabled={mode === "view"}
-                                        // defaultValue={initialData.city}
                                         endContent={<></>}
                                         labelPlacement="outside"
                                         type="text"
                                         label="city"
                                         name="city"
                                         value={formData.city}
+                                        maxLength={60}
                                         onChange={handleChange}
-                                    // {...register("city", { required: true })}
                                     />
 
                                     <Input
@@ -493,15 +433,14 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                                         placeholder="Enter your State"
                                         startContent={<></>}
                                         isDisabled={mode === "view"}
-                                        // defaultValue={initialData.state}
                                         endContent={<></>}
                                         labelPlacement="outside"
                                         type="text"
                                         label="state"
                                         name="state"
                                         value={formData.state}
+                                        maxLength={60}
                                         onChange={handleChange}
-                                    // {...register("state", { required: true })}
                                     />
 
                                 </div>
@@ -513,70 +452,64 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                                         placeholder="Enter your country"
                                         startContent={<></>}
                                         isDisabled={mode === "view"}
-                                        // defaultValue={initialData.country}
                                         endContent={<></>}
                                         labelPlacement="outside"
                                         type="text"
                                         label="Country"
                                         name="country"
                                         value={formData.country}
+                                        maxLength={60}
                                         onChange={handleChange}
-                                    // {...register("country", { required: true })}
                                     />
-
 
                                     <Input
                                         errorMessage={errors.zip_code && errors.zip_code}
-                                        // placeholder="Enter your zip code"
+                                        placeholder="Enter your zip code"
                                         startContent={<></>}
                                         isDisabled={mode === "view"}
-                                        // defaultValue={initialData.zip_code}
                                         endContent={<></>}
                                         labelPlacement="outside"
                                         type="number"
-                                        label="Zip code"
+                                        label={<FormLabel label="Zip code" />}
                                         value={formData.zip_code}
                                         name="zip_code"
+                                        maxLength={8}
                                         onChange={handleChange}
-                                    // {...register("zip_code")}
                                     />
-
                                 </div>
 
                                 <div>
-
                                     <Textarea
                                         errorMessage={errors.address_line_1 && errors.address_line_1}
                                         startContent={<></>}
                                         placeholder="Write your address here"
                                         isDisabled={mode === "view"}
-                                        // defaultValue={initialData.address_line_1}
                                         endContent={<></>}
                                         labelPlacement="outside"
                                         type="text"
-                                        label="Address"
+                                        label="Address 1"
                                         name="address_line_1"
                                         value={formData.address_line_1}
+                                        maxLength={256}
                                         onChange={handleChange}
-                                    // {...register("address_line_1")}
                                     />
 
                                     <Textarea
                                         errorMessage={errors.address_line_2 && errors.address_line_2}
                                         startContent={<></>}
-                                        placeholder="Write your second address here"
+                                        placeholder="Write your address 2 here"
                                         isDisabled={mode === "view"}
-                                        // defaultValue={initialData.address_line_2}
                                         endContent={<></>}
                                         labelPlacement="outside"
                                         type="text"
-                                        label="Secondary Address"
+                                        label="Address 2"
                                         name="address_line_2"
                                         value={formData.address_line_2}
+                                        maxLength={256}
                                         onChange={handleChange}
-                                    // {...register("address_line_2")}
                                     />
                                 </div>
+
                             </ModalBody>
 
                             <ModalFooter>
@@ -585,8 +518,6 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                                 </Button>
                                 <ButtonComponent />
                             </ModalFooter>
-
-
                         </>
                     )}
                 </ModalContent>
