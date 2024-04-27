@@ -20,10 +20,16 @@ import { useSession } from "next-auth/react";
 
 
 
+interface countType {
+    course_count:number;
+    retreat:number;
+    wellness:number;
+    treatment:number;
 
+}
 
 const MainDash: React.FC = () => {
-    const [courseCount, setCourseCount] = useState("")
+    const [counts, setCounts] = useState<countType>()
 
     useLayoutEffect(()=>{
         getCounts()
@@ -31,8 +37,8 @@ const MainDash: React.FC = () => {
 
     const getCounts = async()=> {
         try {
-            const {data} = await axios.get('/course/course_count/',{headers:{Authorization:`Bearer ${session?.user?.access_token}`}});
-            setCourseCount(data.course_count)
+            const {data} = await axios.get('/dashboard/',{headers:{Authorization:`Bearer ${session?.user?.access_token}`}});
+            setCounts(data.counts)
         } catch (error) {
             
         }
@@ -42,16 +48,16 @@ const MainDash: React.FC = () => {
         <>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
-                <CardDataStats title="Bookings" total="10" rate="0.43%" levelUp>
+                <CardDataStats title="Treatments" total={counts?.treatment?.toString() || "0"} rate="" >
                 <BookOpenText width={22} height={20} className="stroke-primary dark:stroke-white"  />
                 </CardDataStats>
-                <CardDataStats title="Course" total={courseCount||"0"} rate="new 2" levelUp>
+                <CardDataStats title="Course" total={counts?.course_count?.toString() || "0"} rate="" >
                 <Pencil width={22} height={20} className="stroke-primary dark:stroke-white"  />
                 </CardDataStats>
-                <CardDataStats title="Experts" total="21" rate="new 4" levelUp>
+                <CardDataStats title="Wellness" total={counts?.wellness?.toString() || "0"} rate="" >
                 <GraduationCapIcon width={22} height={20} className="stroke-primary dark:stroke-white"  />
                 </CardDataStats>
-                <CardDataStats title="Total Users" total="3.456" rate="0.95%" levelDown>
+                <CardDataStats title="Retreat" total={counts?.retreat?.toString() || "0"} rate="" >
                     <svg
                         className="fill-primary dark:fill-white"
                         width="22"

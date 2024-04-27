@@ -13,17 +13,17 @@ const instance = axios.create({
 //     return config;
 // },(error) => Promise.reject(error))
 
-// instance.interceptors.response.use(
-//   (response) => {
-//     return response;
-//   },
-//   async (error) => {
-//     if (error.response && error.response.status === 401) {
-//       // Token is expired or invalid, log out the user
-//       await signOut({ redirect: false, callbackUrl: "/login" });
-//     }
-//     return Promise.reject(error);
-//   }
-// );
+instance.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  async (error) => {
+    if (error.response && error.response.status === 401) {
+      // Token is expired or invalid, log out the user
+      await signOut({ redirect: false, callbackUrl: "/login" });
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default instance;

@@ -5,18 +5,20 @@ import Image from "next/image";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import OtpInput from 'react-otp-input';
 import axios from "@/lib/axios";
-import { Button } from "@nextui-org/react";
+import { Button, Input } from "@nextui-org/react";
 import ResetPass from "../_reset/ResetPass";
+import { MailIcon } from "lucide-react";
+import FormLabel from "@/components/Formhelpers/FormLabel";
+import SpinLoader from "@/components/common/spinLoader";
+import LoadingOverlay from "@/components/common/OverLayLoading";
 
 
 const ForgotPass: React.FC = () => {
-
-
   const [formHasUnsavedChanges, setformHasUnsavedChanges] = useState(true)
   useEffect(() => {
-    const handleBeforeUnload = (event:any) => {
+    const handleBeforeUnload = (event: any) => {
       const formHasUnsavedChanges = true;
-      
+
       if (formHasUnsavedChanges) {
         const message = 'You have unsaved changes. Are you sure you want to leave?';
         event.returnValue = message; // Standard for most browsers
@@ -37,42 +39,57 @@ const ForgotPass: React.FC = () => {
   const [otp, setOtp] = useState('');
   const [isOtp, setIsOtp] = useState(false)
   const [isResetPass, setIsResetPass] = useState(false)
+  const [errMsg, setErrMsg] = useState("")
+  const [errStatus, setErrStatus] = useState(false)
+  const [loading, setLoading] = useState<boolean>(true);
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 1000);
+  }, []);
 
   const handleSubmit = async (e: any) => {
     try {
       e.preventDefault()
+      setErrMsg("")
       const formdata: any = new FormData()
       formdata.append("email_id", email)
       const { data } = await axios.post('/forgetpassword/', formdata)
-      console.log(data)
+      console.log(data,"greeek")
       setIsOtp(true)
-    } catch (error) {
-
+    } catch (error:any) {
+     setErrMsg(error?.response.data.msg)
     }
   }
 
   const verifyOtp = async () => {
     try {
-      const formdata:any = new FormData()
+      const formdata: any = new FormData()
       formdata.append("email_id", email)
-      formdata.append("otp",otp)
+      formdata.append("otp", otp)
       console.log(otp)
-      const {data} = await axios.post('/otp_verification/',formdata)
+      const { data } = await axios.post('/otp_verification/', formdata)
+      console.log("fooo")
       setIsResetPass(true)
 
     } catch (error) {
-        console.log(error)
+      // console.log(error.data)
+      // setErrMsg(error.data.msg)
+
     }
   }
 
-  if(isResetPass) return (
-  <ResetPass reset={setformHasUnsavedChanges} email={email} />
+  if(loading){
+    return <SpinLoader />
+  }
+
+  if (isResetPass) return (
+    <ResetPass reset={setformHasUnsavedChanges} email={email} />
   )
   return (
     <>
 
 
       <div className="   dark:border-strokedark bg-boxdark">
+      
         <div className="flex flex-wrap  h-screen  items-center justify-center">
 
 
@@ -89,36 +106,26 @@ const ForgotPass: React.FC = () => {
                 {
                   !isOtp && (
                     <div className="mb-4">
-                      <label className="mb-2.5 block font-medium text-white">
-                        Email
-                      </label>
                       <div className="relative">
-                        <input
+                        <Input
                           required
+                          errorMessage={errMsg && errMsg}
+                          labelPlacement="outside"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           type="email"
                           placeholder="Enter your email"
-                          className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                          fullWidth={true}
+                          radius="sm"
+                          size="lg"
+                          label={<FormLabel label="Email" symbolEnable={true} />}
+                          color="primary"
+                          variant="bordered"
+                          endContent={<MailIcon />}
+
                         />
 
-                        <span className="absolute right-4 top-4">
-                          <svg
-                            className="fill-current"
-                            width="22"
-                            height="22"
-                            viewBox="0 0 22 22"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <g opacity="0.5">
-                              <path
-                                d="M19.2516 3.30005H2.75156C1.58281 3.30005 0.585938 4.26255 0.585938 5.46567V16.6032C0.585938 17.7719 1.54844 18.7688 2.75156 18.7688H19.2516C20.4203 18.7688 21.4172 17.8063 21.4172 16.6032V5.4313C21.4172 4.26255 20.4203 3.30005 19.2516 3.30005ZM19.2516 4.84692C19.2859 4.84692 19.3203 4.84692 19.3547 4.84692L11.0016 10.2094L2.64844 4.84692C2.68281 4.84692 2.71719 4.84692 2.75156 4.84692H19.2516ZM19.2516 17.1532H2.75156C2.40781 17.1532 2.13281 16.8782 2.13281 16.5344V6.35942L10.1766 11.5157C10.4172 11.6875 10.6922 11.7563 10.9672 11.7563C11.2422 11.7563 11.5172 11.6875 11.7578 11.5157L19.8016 6.35942V16.5688C19.8703 16.9125 19.5953 17.1532 19.2516 17.1532Z"
-                                fill=""
-                              />
-                            </g>
-                          </svg>
-                        </span>
+
                       </div>
                     </div>
                   )
@@ -136,29 +143,29 @@ const ForgotPass: React.FC = () => {
                           renderSeparator={<span>-</span>}
                           renderInput={(props) => <input {...props} />}
                         />
-                        </div>
+                      </div>
                     </div>
                   )
                 }
-            {
-              !isOtp && (
-                <div className="mb-5">
-                  <input
-                    type="submit"
-                    value="Continue"
-                    className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
-                  />
-                </div>
-              )
-            }
+                {
+                  !isOtp && (
+                    <div className="mb-5">
+                      <input
+                        type="submit"
+                        value="Continue"
+                        className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
+                      />
+                    </div>
+                  )
+                }
 
-            {isOtp && (
-              <div className="flex justify-center items-center mt-12">
-                <Button onClick={verifyOtp} >Verify</Button>
-              </div>
-            )}
+                {isOtp && (
+                  <div className="flex justify-center items-center mt-12">
+                    <Button onClick={verifyOtp} >Verify</Button>
+                  </div>
+                )}
 
-                
+
 
                 {/* <button className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-50 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-50">
                   <span>

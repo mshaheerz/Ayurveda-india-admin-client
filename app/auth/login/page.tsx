@@ -1,43 +1,67 @@
 
 "use client"
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { Metadata } from "next";
 import { signIn } from "next-auth/react";
 import { useRef } from "react";
-// export const metadata: Metadata = {
-//   title: "Signin Page | Ayurveda india",
-//   description: "This is Signin page",
-//   // other metadata
-// };
+import { Button, Input } from "@nextui-org/react";
+import FormLabel from "@/components/Formhelpers/FormLabel";
+import { EyeIcon, EyeOff, MailIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import SpinLoader from "@/components/common/spinLoader";
 
 interface IProps {
   searchParams?: { [key: string]: string | string[] | undefined };
 }
 
+interface AuthResponse {
+  ok:boolean;
+  error:string;
+  url:string;
+
+}
+
 const SignIn = ({ searchParams }: IProps) => {
   const userName = useRef("");
   const pass = useRef("");
+  const [isVisible, setIsVisible] = React.useState(false);
+  const [errMsg, setErrMsg] = useState<string | null>(null);
+  const toggleVisibility = () => setIsVisible(!isVisible);
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
-  const onSubmit = async (e:any) => {
+  const onSubmit = async (e: any) => {
     e.preventDefault()
-    console.log(userName.current, pass.current, 'fffffff')
+    setLoading(true);
+    setErrMsg(null);
     try {
       const result = await signIn("credentials", {
         username: userName.current,
         password: pass.current,
-        redirect: true,
+        redirect: false,
         callbackUrl: "/admin",
+
+
       });
       console.log(result, "foooo")
-    } catch (error) {
-      console.log(error)
+      if (result?.ok) {
+        router.push("/admin")
+      } else {
+        setErrMsg(result?.error || '')
+      }
+    } catch (error: any) {
+      // setErrMsg(error.response.data.msg)
+      setErrMsg("Something went wrong!")
 
+    } finally {
+      setLoading(false)
     }
 
   };
+
+  if(loading){
+    return <SpinLoader />
+  }
 
 
 
@@ -202,51 +226,55 @@ const SignIn = ({ searchParams }: IProps) => {
               </h2>
 
               <form onSubmit={onSubmit}>
-                <div className="mb-4">
-                  <label className="mb-2.5 block font-medium text-white">
+                <div className="mb-15 mt-15">
+                  {/* <label className="mb-2.5 block font-medium text-white">
                     Email
-                  </label>
-                  <div className="relative">
-                    <input
+                  </label> */}
+                  <div className="relative ">
+                    <Input
+                      size="lg"
+                      radius="sm"
+                      variant="bordered"
+                      color="primary"
+                      labelPlacement="outside"
+                      endContent={<MailIcon />}
+                      label={<FormLabel label="Email" symbolEnable={true} />}
                       onChange={(e) => (userName.current = e.target.value)}
                       type="email"
                       placeholder="Enter your email"
-                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                     />
-
-                    <span className="absolute right-4 top-4">
-                      <svg
-                        className="fill-current"
-                        width="22"
-                        height="22"
-                        viewBox="0 0 22 22"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <g opacity="0.5">
-                          <path
-                            d="M19.2516 3.30005H2.75156C1.58281 3.30005 0.585938 4.26255 0.585938 5.46567V16.6032C0.585938 17.7719 1.54844 18.7688 2.75156 18.7688H19.2516C20.4203 18.7688 21.4172 17.8063 21.4172 16.6032V5.4313C21.4172 4.26255 20.4203 3.30005 19.2516 3.30005ZM19.2516 4.84692C19.2859 4.84692 19.3203 4.84692 19.3547 4.84692L11.0016 10.2094L2.64844 4.84692C2.68281 4.84692 2.71719 4.84692 2.75156 4.84692H19.2516ZM19.2516 17.1532H2.75156C2.40781 17.1532 2.13281 16.8782 2.13281 16.5344V6.35942L10.1766 11.5157C10.4172 11.6875 10.6922 11.7563 10.9672 11.7563C11.2422 11.7563 11.5172 11.6875 11.7578 11.5157L19.8016 6.35942V16.5688C19.8703 16.9125 19.5953 17.1532 19.2516 17.1532Z"
-                            fill=""
-                          />
-                        </g>
-                      </svg>
-                    </span>
                   </div>
                 </div>
 
-                <div className="mb-6">
-                  <label className="mb-2.5 block font-medium text-white">
+                <div className="mb-10">
+                  {/* <label className="mb-2.5 block font-medium text-white">
                     Password
-                  </label>
+                  </label> */}
                   <div className="relative">
-                    <input
+                    <Input
                       onChange={(e) => (pass.current = e.target.value)}
-                      type="password"
+                      variant="bordered"
+                      size="lg"
+                      radius="sm"
+                      color="primary"
+                      errorMessage={errMsg && errMsg}
+                      labelPlacement="outside"
+                      label={<FormLabel label="Password" symbolEnable={true} />}
+                      endContent={
+                        <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
+                          {isVisible ? (
+                            <EyeOff className="text-2xl text-default-400 pointer-events-none" />
+                          ) : (
+                            <EyeIcon className="text-2xl text-default-400 pointer-events-none" />
+                          )}
+                        </button>
+                      }
+                      type={isVisible ? "text" : "password"}
+                      fullWidth={true}
                       placeholder="6+ Characters, 1 Capital letter"
-                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                     />
 
-                    <span className="absolute right-4 top-4">
+                    {/* <span className="absolute right-4 top-4">
                       <svg
                         className="fill-current"
                         width="22"
@@ -266,18 +294,21 @@ const SignIn = ({ searchParams }: IProps) => {
                           />
                         </g>
                       </svg>
-                    </span>
+                    </span> */}
                   </div>
                 </div>
 
                 <div className="mb-5">
                   {/* <button type="button" onClick={()=>signIn()}>test</button> */}
-                  <input
-
+                  <Button
                     type="submit"
-                    value="Sign In"
+                    value=""
+                    size="lg"
+                    fullWidth
                     className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
-                  />
+                  >
+                    Sign In
+                  </Button>
                 </div>
 
                 {/* <button className="flex w-full items-center justify-center gap-3.5 rounded-lg border border-stroke bg-gray p-4 hover:bg-opacity-50 dark:border-strokedark dark:bg-meta-4 dark:hover:bg-opacity-50">
