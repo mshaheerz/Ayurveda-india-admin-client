@@ -8,8 +8,8 @@ const columns = [
   { name: "First name", uid: "first_name", sortable: true },
   { name: "Last name", uid: "last_name" },
   { name: "Phone", uid: "phone_number" },
-  { name: "ROLE", uid: "role", sortable: true },
-  { name: "STATUS", uid: "status", sortable: true },
+  { name: "Role", uid: "role", sortable: true },
+  { name: "Status", uid: "status", sortable: true },
 ];
 
 const statusOptions = [

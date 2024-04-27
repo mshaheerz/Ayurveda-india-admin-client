@@ -333,8 +333,11 @@ export default function ManageUserPage() {
         setPage(1);
     }, []);
 
-    const onSearchChange = React.useCallback(async (value?: string) => {
+    const onSearchChange = React.useCallback(async (value?: string, event?: React.KeyboardEvent<HTMLInputElement>) => {
         setFilterValue(value || "");
+        console.log(event)
+        if (event?.key === 'Enter') {
+       
         if (value) {
             // setPage(1);
             try {
@@ -380,6 +383,7 @@ export default function ManageUserPage() {
             // }
 
         }
+    }
     }, []);
 
     const onClear = React.useCallback(() => {
@@ -400,6 +404,7 @@ export default function ManageUserPage() {
                         value={filterValue}
                         onClear={() => onClear()}
                         onValueChange={onSearchChange}
+                        onKeyDown={(e) => onSearchChange(filterValue, e)}
                     />
                     <div className="flex gap-3">
                         {/* <Dropdown>

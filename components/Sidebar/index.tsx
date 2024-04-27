@@ -71,7 +71,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             src={"/images/logo/logo.svg"}
             alt="Logo"
           /> */}
-          <h1 className="text-xl font-bold text-white">Ayurveda India Dash</h1>
+          <h1 className="text-xl font-bold text-white">Ayurveda India</h1>
         </Link>
 
         <button

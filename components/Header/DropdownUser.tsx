@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {signOut, useSession} from "next-auth/react"
+import { UserCircleIcon, UserIcon } from "lucide-react";
 const DropdownUser = () => {
   const {data: session} = useSession()
   console.log(session)
@@ -65,9 +66,10 @@ const DropdownUser = () => {
           <Image
             width={112}
             height={112}
-            src={"/images/user/user-01.png"}
+            src={"/images/user/user-profile-2.png"}
             alt="User"
           />
+    
         </span>
 
         <svg
