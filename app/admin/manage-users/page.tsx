@@ -32,6 +32,7 @@ import AddUserModal from "./_components/AddUserModal";
 import axios from "@/lib/axios";
 import { useSession } from "next-auth/react";
 import { Slide, toast } from "react-toastify";
+import TableSkeleton from "@/components/Skeletons/TableSkeleton";
 
 //global variables
 const statusColorMap: Record<string, ChipProps["color"]> = {
@@ -63,6 +64,7 @@ export default function ManageUserPage() {
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPage, setTotalPages] = useState(1)
     const [totalCount, setTotalCount] = useState(0)
+    const [loading, setLoading] = useState(false)
     const [errors, setErrors] = useState({
         first_name: "",
         last_name: "",
@@ -85,6 +87,10 @@ export default function ManageUserPage() {
 
 
     const getUsers = async () => {
+
+        if (!isOpen) (
+            setLoading(true)
+        )
         try {
             const { data } = await axios.get(`/users/?page=${currentPage}`, {
                 headers: {
@@ -103,6 +109,8 @@ export default function ManageUserPage() {
             setTotalPages(data.total_pages)
         } catch (error) {
             console.log(error)
+        }finally{
+            setLoading(false)
         }
     }
 
@@ -359,6 +367,7 @@ export default function ManageUserPage() {
 
             if (value) {
                 // setPage(1);
+                setLoading(true)
                 try {
 
                     console.log("true mwone")
@@ -379,6 +388,8 @@ export default function ManageUserPage() {
                     setUsers(transformedUsers);
                 } catch (error) {
                     console.error('Error fetching users:', error);
+                }finally{
+                    setLoading(false)
                 }
             } else {
                 // console.log("else worked")
@@ -552,6 +563,12 @@ export default function ManageUserPage() {
             </div>
         );
     }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
+
+
+    if (loading) {
+        return <TableSkeleton />
+    }
+
 
     return (
         <>

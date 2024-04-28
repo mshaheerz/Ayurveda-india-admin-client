@@ -9,6 +9,7 @@ import PhotosEditor from "./PhotoEditor";
 import ViewImages from "./ViewImages";
 import LoadingOverlay from "@/components/common/OverLayLoading";
 import FormLabel from "@/components/Formhelpers/FormLabel";
+import Swal from 'sweetalert2'
 
 
 interface AddCourseProps {
@@ -52,14 +53,14 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
     const [timeLineType, setTimeLineType] = useState("full_day")
 
 
- 
+
     const handleTheoryModuleChange = (index: number, field: keyof Module, value: string) => {
         const updatedModules = [...theory_modules];
         updatedModules[index][field] = value;
         setTheory_Modules(updatedModules);
     };
 
-    const [loading,setLoading] = useState(true)
+    const [loading, setLoading] = useState(true)
 
 
     const addTheoryModule = () => {
@@ -383,7 +384,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
     };
 
 
-   
+
 
     // Function to show/hide time inputs based on timeline_type
     const RenderTimeInputs = () => {
@@ -496,33 +497,56 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
     const handlePublish = async () => {
         try {
-            const { data } = await axios.patch(`/course/${initialData.id}/published/`, {
-                is_published: true
-            },
-                { headers: { Authorization: `Bearer ${token}` } })
 
-            setInitialData((prev: any) => {
-                return {
-                    ...prev,
-                    is_published: true
+
+            Swal.fire({
+
+                title: "Do you want to publish course?",
+                showCancelButton: true,
+                confirmButtonText: "Confirm",
+                animation: true,
+                backdrop: false,
+
+
+
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    const { data } = await axios.patch(`/course/${initialData.id}/published/`, {
+                        is_published: true
+                    },
+                        { headers: { Authorization: `Bearer ${token}` } })
+
+                    setInitialData((prev: any) => {
+                        return {
+                            ...prev,
+                            is_published: true
+                        }
+                    })
+
+                    setRefresh((prev: boolean) => !prev)
+
+                    toast.success(data?.msg, {
+                        position: "top-right",
+                        autoClose: 5000,
+                        hideProgressBar: true,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "dark",
+                        transition: Slide,
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.close();
                 }
-            })
 
-            setRefresh((prev: boolean) => !prev)
 
-            toast.success('Course Published successfully', {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: true,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-                transition: Slide,
             });
+
+
+
         } catch (error) {
-            toast.error('Sometning went wrong Please try again', {
+            toast.error('Something went wrong Please try again', {
                 position: "top-right",
                 autoClose: 5000,
                 hideProgressBar: true,
@@ -540,31 +564,53 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
     const handleUnPublish = async () => {
         try {
-            const { data } = await axios.patch(`/course/${initialData.id}/published/`, {
-                is_published: false
-            },
-                { headers: { Authorization: `Bearer ${token}` } })
 
-            setInitialData((prev: any) => {
-                return {
-                    ...prev,
-                    is_published: false
+
+
+            Swal.fire({
+
+                title: "Do you want to publish course?",
+                showCancelButton: true,
+                confirmButtonText: "Confirm",
+                animation: true,
+                backdrop: false,
+
+
+
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    const { data } = await axios.patch(`/course/${initialData.id}/published/`, {
+                        is_published: false
+                    },
+                        { headers: { Authorization: `Bearer ${token}` } })
+
+                    setInitialData((prev: any) => {
+                        return {
+                            ...prev,
+                            is_published: false
+                        }
+                    })
+                    setRefresh((prev: boolean) => !prev)
+                    toast.success('Course Unpublished', {
+                        position: "top-right",
+                        autoClose: 5000,
+                        hideProgressBar: true,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "dark",
+                        transition: Slide,
+                    });
+
+                    console.log(data)
+
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.close();
                 }
-            })
-            setRefresh((prev: boolean) => !prev)
-            toast.success('Course Unpublished', {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: true,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-                transition: Slide,
-            });
 
-            console.log(data)
+            })
+
         } catch (error) {
             console.log(error)
             toast.error('Something went wrong try again', {
@@ -585,6 +631,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
     return (
         <>
             <Modal
+                className="main-bro"
                 size={"full"}
                 isOpen={isOpen}
                 // closeButton={<div className="bg-red-500 rounded-full text-lg py-4 px-4">X</div>}
@@ -645,7 +692,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             label={<FormLabel label="Short name" symbolEnable={true} />}
                                             labelPlacement="outside"
                                             maxLength={90}
-                                            pattern=".{0,90}" 
+                                            pattern=".{0,90}"
                                             type="text"
                                             {...register("short_name", { required: true })}
                                         />

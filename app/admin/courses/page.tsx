@@ -19,8 +19,10 @@ import {
     Selection,
     ChipProps,
     SortDescriptor,
-    useDisclosure
+    useDisclosure,
+    Skeleton
 } from "@nextui-org/react";
+import '@sweetalert2/theme-dark/dark.css';
 import { columns, courses, statusOptions } from "./data";
 import { capitalize } from "@/lib/utils";
 import { PlusIcon } from "@/components/custom-icons/PlusIcon";
@@ -35,6 +37,7 @@ import { CheckIcon, CrossIcon, CrosshairIcon, XIcon } from "lucide-react";
 import { Slide, toast } from "react-toastify";
 import Loader from "@/components/common/Loader";
 import SpinLoader from "@/components/common/spinLoader";
+import TableSkeleton from "@/components/Skeletons/TableSkeleton";
 
 
 //global variables
@@ -84,10 +87,10 @@ export default function CoursePage() {
     //fetch course
     const getCourse = async () => {
         console.log(session?.user)
-        if(!isOpen)(
-          setLoading(true)  
+        if (!isOpen) (
+            setLoading(true)
         )
-        
+
         try {
             const { data } = await axios.get(`/course/?page=${currentPage}`, {
                 headers: {
@@ -329,7 +332,7 @@ export default function CoursePage() {
                     <div>
                         {truncatedValue}
                     </div>
-                )      
+                )
             case "course_price":
                 return (
                     <div className="flex flex-col">
@@ -365,27 +368,33 @@ export default function CoursePage() {
         setPage(1);
     }, []);
 
-    const onSearchChange = React.useCallback(async (value?: string) => {
+    const onSearchChange = React.useCallback(async (value?: string, event?: React.KeyboardEvent<HTMLInputElement>) => {
+        setFilterValue(value || "");
+        if (event?.key === 'Enter') {
 
-        if (value) {
-            setFilterValue(value);
-            try {
+            if (value) {
+                setLoad(true)
+                try {
 
-                console.log("true mwone")
-                const { data } = await axios.get(`/course/?search=${value}`, {
-                    headers: {
-                        Authorization: `Bearer ${session?.user.access_token}`
-                    }
-                });
+                    console.log("true mwone")
+                    const { data } = await axios.get(`/course/?search=${value}`, {
+                        headers: {
+                            Authorization: `Bearer ${session?.user.access_token}`
+                        }
+                    });
 
 
 
-                setcourses(data.data);
-            } catch (error) {
-                console.error('Error fetching users:', error);
+                    setcourses(data.data);
+                } catch (error) {
+                    console.error('Error fetching users:', error);
+                } finally {
+                    setLoad(false)
+                }
+            } else {
+                setFilterValue("");
             }
-        } else {
-            setFilterValue("");
+
         }
     }, []);
 
@@ -394,6 +403,8 @@ export default function CoursePage() {
         setPage(1)
     }, [])
 
+    const [load, setLoad] = useState(false)
+
 
 
     const topContent = React.useMemo(() => {
@@ -401,6 +412,7 @@ export default function CoursePage() {
             <div className="flex flex-col gap-4">
 
                 <div className="flex justify-between  gap-3 items-end">
+
                     <Input
                         isClearable
                         className="w-full  sm:max-w-[44%]"
@@ -409,6 +421,7 @@ export default function CoursePage() {
                         value={filterValue}
                         onClear={() => onClear()}
                         onValueChange={onSearchChange}
+                        onKeyDown={(e) => onSearchChange(filterValue, e)}
                     />
                     <div className="flex gap-3">
                         {/* <Dropdown>
@@ -483,8 +496,12 @@ export default function CoursePage() {
                             Add New
                         </Button>
                     </div>
+
                 </div>
+
+
                 <div className="flex justify-between items-center">
+
                     <span className="text-default-400 text-small">Total {totalCount} Courses</span>
                     <label className="flex items-center text-default-400 text-small">
                         Rows per page: 10
@@ -497,6 +514,7 @@ export default function CoursePage() {
                             <option value="15">15</option>
                         </select> */}
                     </label>
+
                 </div>
             </div>
         );
@@ -514,6 +532,7 @@ export default function CoursePage() {
     const bottomContent = React.useMemo(() => {
         return (
             <div className="py-2 px-2 flex justify-between items-center">
+
                 <span className="w-[30%] text-small text-default-400">
                     {selectedKeys === "all"
                         ? "All items selected"
@@ -536,11 +555,14 @@ export default function CoursePage() {
                         Next
                     </Button>
                 </div>
+
             </div>
         );
     }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
-
+    if(load){
+        return <TableSkeleton />
+    }
 
 
     if (loading) {
