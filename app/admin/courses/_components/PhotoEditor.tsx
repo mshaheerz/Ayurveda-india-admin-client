@@ -82,7 +82,7 @@ function PhotosEditor({ images, authToken, setRefresh }: PhotoProps) {
             setImageStore([...filtered])
 
 
-            setRefresh((prev: boolean) => !prev)
+          
             toast.success('Image Deleted successfully', {
                 position: "top-right",
                 autoClose: 5000,
@@ -94,6 +94,8 @@ function PhotosEditor({ images, authToken, setRefresh }: PhotoProps) {
                 theme: "dark",
                 transition: Slide,
             });
+
+             setRefresh((prev: boolean) => !prev)
 
             // Optionally, update the state or re-fetch the images from the server
         } catch (error) {
@@ -109,7 +111,7 @@ function PhotosEditor({ images, authToken, setRefresh }: PhotoProps) {
                 theme: "dark",
                 transition: Slide,
             });
-        }
+        } 
     }
 
 

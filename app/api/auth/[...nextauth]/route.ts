@@ -48,7 +48,7 @@ import axios from "@/lib/axios"
           }else throw new Error("Invalid credentials. Please try again.")
         } catch (error:any) {
           console.log(error)
-          throw new Error(error.response.data.msg || "Invalid credentials. Please try again.");
+          throw new Error(error?.response?.data?.msg || "Please try again. Check your Internet Connection");
         }
 
        

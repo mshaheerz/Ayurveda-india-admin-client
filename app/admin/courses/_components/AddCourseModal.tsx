@@ -8,6 +8,7 @@ import { Slide, toast } from "react-toastify";
 import PhotosEditor from "./PhotoEditor";
 import ViewImages from "./ViewImages";
 import LoadingOverlay from "@/components/common/OverLayLoading";
+import FormLabel from "@/components/Formhelpers/FormLabel";
 
 
 interface AddCourseProps {
@@ -586,6 +587,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
             <Modal
                 size={"full"}
                 isOpen={isOpen}
+                // closeButton={<div className="bg-red-500 rounded-full text-lg py-4 px-4">X</div>}
                 onClose={() => {
                     reset({
                         course_modules: [],
@@ -596,7 +598,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
             >
 
-                <LoadingOverlay show={loading} />
+                {/* <LoadingOverlay show={loading} /> */}
                 <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
                     <ModalContent>
                         {(onClose) => (
@@ -626,10 +628,12 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                         <Input
                                             defaultValue={initialData.name}
                                             disabled={mode === 'view'}
-                                            label="Name*"
+                                            label={<FormLabel label="Name" symbolEnable={true} />}
                                             errorMessage={errors.name && "Name is required"}
                                             labelPlacement="outside"
                                             type="text"
+                                            maxLength={256}
+                                            pattern=".{0,256}" // Allow up to 90 characters
                                             {...register("name", { required: true })}
                                         />
 
@@ -638,8 +642,10 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             defaultValue={initialData.short_name}
                                             disabled={mode === 'view'}
                                             errorMessage={errors.short_name && "Short name is required"}
-                                            label="Short Name*"
+                                            label={<FormLabel label="Short name" symbolEnable={true} />}
                                             labelPlacement="outside"
+                                            maxLength={90}
+                                            pattern=".{0,90}" 
                                             type="text"
                                             {...register("short_name", { required: true })}
                                         />
@@ -651,8 +657,11 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             defaultValue={initialData.description}
                                             disabled={mode === 'view'}
                                             errorMessage={errors.description && "Description is required"}
-                                            label="Description*"
+                                            label={<FormLabel label="Description" symbolEnable={true} />}
                                             labelPlacement="outside"
+                                            placeholder="Course description"
+                                            maxLength={556}
+                                            pattern=".{0,556}"
                                             {...register("description", { required: true })}
                                         />
                                     </div>
@@ -662,9 +671,11 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             defaultValue={initialData.location}
                                             disabled={mode === 'view'}
                                             errorMessage={errors.location && "Location is required"}
-                                            label="Location*"
+                                            label="Location"
                                             labelPlacement="outside"
                                             type="text"
+                                            maxLength={256}
+                                            pattern=".{0,256}"
                                             {...register("location")}
                                         />
                                         <Input
@@ -673,7 +684,9 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             label="Duration*"
                                             labelPlacement="outside"
                                             type="number"
-                                            {...register("duration", { required: true })}
+                                            maxLength={256}
+                                            pattern=".{0,256}"
+                                            {...register("duration")}
                                         />
 
 
@@ -681,9 +694,10 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
                                             isDisabled={mode === 'view'}
                                             defaultSelectedKeys={[initialData.duration_type]}
-                                            label="Duration Type*"
+                                            label="Duration Type"
+                                            placeholder="Select duration type"
                                             labelPlacement="outside"
-                                            {...register("duration_type", { required: true })}
+                                            {...register("duration_type")}
                                         >
                                             <SelectItem key={"day"} value="day">day</SelectItem>
                                             <SelectItem key={"days"} value="days">days</SelectItem>
@@ -701,6 +715,8 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             label="Seats Available"
                                             labelPlacement="outside"
                                             type="number"
+                                            maxLength={256}
+                                            pattern=".{0,256}"
                                             {...register("seats_available")}
                                         />
 
@@ -713,7 +729,9 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             label="Price"
                                             labelPlacement="outside"
                                             type="number"
-                                            {...register("actual_course_price", { required: true })}
+                                            maxLength={256}
+                                            pattern=".{0,256}"
+                                            {...register("actual_course_price")}
                                         />
                                         <Input
                                             defaultValue={initialData.offer_persentage}
@@ -721,6 +739,8 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             label="Offer Percentage"
                                             labelPlacement="outside"
                                             type="number"
+                                            maxLength={256}
+                                            pattern=".{0,256}"
                                             {...register("offer_persentage")}
                                         />
 
@@ -732,6 +752,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             label="Timeline Type"
                                             onChange={(e) => setTimeLineType(e.target.value)}
                                             labelPlacement="outside"
+                                            placeholder="Select timeline type"
                                         >
                                             <SelectItem key="full_day" value="full_day">Full Day</SelectItem>
                                             <SelectItem key="half_day" value="half_day">Half Day</SelectItem>
@@ -831,6 +852,8 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                                     <Input
                                                         // defaultValue={module.name} // Set default value
                                                         value={module.name}
+                                                        maxLength={256}
+                                                        pattern=".{0,256}"
                                                         onChange={(e) => handleTheoryModuleChange(index, 'name', e.target.value)}
                                                         disabled={mode === 'view'}
                                                         label={`Module Name ${index + 1}`}
@@ -842,6 +865,8 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
                                                     <Input
                                                         disabled={mode === 'view'}
+                                                        maxLength={256}
+                                                        pattern=".{0,256}"
                                                         defaultValue={module.description} // Set default value
                                                         label={`Module Description ${index + 1}`}
                                                         labelPlacement="outside"
@@ -966,6 +991,8 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                                         disabled={mode === 'view'}
                                                         label={`Module Name ${index + 1}`}
                                                         labelPlacement="outside"
+                                                        maxLength={256}
+                                                        pattern=".{0,256}"
                                                         value={module.name}
                                                         onChange={(e) => handleModuleChange(index, 'name', e.target.value)}
                                                     // {...register(`course_practicals[${index}].name`, { required: true })}
@@ -978,6 +1005,8 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                                         // defaultValue={module.description} // Provide default value
                                                         label={`Module Description ${index + 1}`}
                                                         labelPlacement="outside"
+                                                        maxLength={256}
+                                                        pattern=".{0,256}"
                                                         value={module.description}
                                                         onChange={(e) => handleModuleChange(index, 'description', e.target.value)}
                                                     // {...register(`course_practicals[${index}].description`, { required: true })}

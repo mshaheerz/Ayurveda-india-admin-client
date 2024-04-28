@@ -148,7 +148,7 @@ export default function ManageUserPage() {
                 }
             })
             setRefresh((prev) => !prev)
-            toast.success('Deleted successfully', {
+            toast.success(data.msg, {
                 position: "top-right",
                 autoClose: 5000,
                 hideProgressBar: true,
@@ -159,9 +159,9 @@ export default function ManageUserPage() {
                 theme: "dark",
                 transition: Slide,
             });
-        } catch (error) {
+        } catch (error:any) {
 
-            toast.error('Something went wrong Please Try again', {
+            toast.error(error?.response?.data.msg || 'Something went wrong Please Try again', {
                 position: "top-right",
                 autoClose: 5000,
                 hideProgressBar: true,
@@ -185,7 +185,7 @@ export default function ManageUserPage() {
                 }
             })
             setRefresh((prev) => !prev)
-            toast.success('Status changed successfully', {
+            toast.success(data?.msg, {
                 position: "top-right",
                 autoClose: 5000,
                 hideProgressBar: true,
@@ -263,22 +263,41 @@ export default function ManageUserPage() {
 
     const renderCell = React.useCallback((user: User, columnKey: React.Key) => {
         const cellValue = user[columnKey as keyof User];
+
+        let truncatedValue = cellValue || "(-)";
+
+        if (typeof truncatedValue === "string" && truncatedValue.length > 15) {
+            truncatedValue = truncatedValue.slice(0, 15) + "..."; // Truncate and add ellipsis
+        }
+
         switch (columnKey) {
             case "email_id":
                 return (
-                    <User
-                        // avatarProps={{ radius: "lg", src: user.email_id }}
-                        // description={user.email_id}
-                        name={cellValue}
-                    >
-                        {user.email_id}
-                    </User>
+                    // <User
+                    //     avatarProps={{ radius: "lg", src: user.email_id }}
+                    //     description={user.email_id}
+                    //     name={cellValue}
+                    // >
+                    <div>
+                        {truncatedValue}
+                    </div>
+
+                    // </User>
                 );
+            case "first_name":
+                return (<div>{truncatedValue}</div>)
+
+            case "last_name":
+                return (<div>{truncatedValue}</div>)
+
+            case "phone_number":
+                return (<div>{truncatedValue}</div>)
+
             case "role":
                 return (
                     <div className="flex flex-col">
-                        <p className="text-bold text-small capitalize">{cellValue}</p>
-                        <p className="text-bold text-tiny capitalize text-default-400">{user.roleName || "no data"}</p>
+                        {/* <p className="text-bold text-small capitalize">{cellValue || "(-)"}</p> */}
+                        <p className="text-bold text-tiny capitalize text-default-400">{user.roleName || "(-)"}</p>
                     </div>
                 );
             case "status":
@@ -296,7 +315,7 @@ export default function ManageUserPage() {
                                     </Button>
                                 </DropdownTrigger>
                                 <DropdownMenu>
-                                    <DropdownItem onClick={() => handleModal(user, "view")}>View</DropdownItem>
+                                    {/* <DropdownItem onClick={() => handleModal(user, "view")}>View</DropdownItem> */}
                                     <DropdownItem onClick={() => handleModal(user, "edit")}>Edit</DropdownItem>
                                     {
                                         user.status === 1 ? <DropdownItem onClick={() => handleUserStatus(user.id, '0')}> <h2 className="text-warning">Deactivate</h2></DropdownItem>
@@ -337,53 +356,53 @@ export default function ManageUserPage() {
         setFilterValue(value || "");
         console.log(event)
         if (event?.key === 'Enter') {
-       
-        if (value) {
-            // setPage(1);
-            try {
 
-                console.log("true mwone")
-                const { data } = await axios.get(`/users/?search=${value}`, {
-                    headers: {
-                        Authorization: `Bearer ${session?.user.access_token}`
-                    }
-                });
+            if (value) {
+                // setPage(1);
+                try {
 
-                const transformedUsers = data?.data?.map((user: any) => ({
-                    ...user, // Spread all existing properties
-                    roleId: user.role.id,
-                    roleName: user.role.name,
-                    role: undefined // Remove the original role object
-                }));
+                    console.log("true mwone")
+                    const { data } = await axios.get(`/users/?search=${value}`, {
+                        headers: {
+                            Authorization: `Bearer ${session?.user.access_token}`
+                        }
+                    });
+
+                    const transformedUsers = data?.data?.map((user: any) => ({
+                        ...user, // Spread all existing properties
+                        roleId: user.role.id,
+                        roleName: user.role.name,
+                        role: undefined // Remove the original role object
+                    }));
 
 
-                setUsers(transformedUsers);
-            } catch (error) {
-                console.error('Error fetching users:', error);
+                    setUsers(transformedUsers);
+                } catch (error) {
+                    console.error('Error fetching users:', error);
+                }
+            } else {
+                // console.log("else worked")
+                // try {
+                //     const { data } = await axios.get('/users', {
+                //         headers: {
+                //             Authorization: `Bearer ${session?.user.access_token}`
+                //         }
+                //     });
+
+                //     const transformedUsers = data?.data?.map((user: any) => ({
+                //         ...user, // Spread all existing properties
+                //         roleId: user.role.id,
+                //         roleName: user.role.name,
+                //         role: undefined // Remove the original role object
+                //     }));
+
+                //     setUsers(transformedUsers);
+                // } catch (error) {
+                //     console.error('Error fetching all users:', error);
+                // }
+
             }
-        } else {
-            // console.log("else worked")
-            // try {
-            //     const { data } = await axios.get('/users', {
-            //         headers: {
-            //             Authorization: `Bearer ${session?.user.access_token}`
-            //         }
-            //     });
-
-            //     const transformedUsers = data?.data?.map((user: any) => ({
-            //         ...user, // Spread all existing properties
-            //         roleId: user.role.id,
-            //         roleName: user.role.name,
-            //         role: undefined // Remove the original role object
-            //     }));
-
-            //     setUsers(transformedUsers);
-            // } catch (error) {
-            //     console.error('Error fetching all users:', error);
-            // }
-
         }
-    }
     }, []);
 
     const onClear = React.useCallback(() => {

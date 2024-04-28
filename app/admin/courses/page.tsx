@@ -84,7 +84,10 @@ export default function CoursePage() {
     //fetch course
     const getCourse = async () => {
         console.log(session?.user)
-        setLoading(true)
+        if(!isOpen)(
+          setLoading(true)  
+        )
+        
         try {
             const { data } = await axios.get(`/course/?page=${currentPage}`, {
                 headers: {
@@ -98,16 +101,16 @@ export default function CoursePage() {
             setTotalPages(data.total_pages)
             setcourses(data.data)
             setLoading(false)
-      
+
 
         } catch (error) {
             console.log(error)
             setLoading(false)
-        
-        }finally {
+
+        } finally {
             // setLoading(false)
         }
-        
+
     }
 
     // handle modal open view, edit
@@ -172,7 +175,7 @@ export default function CoursePage() {
             })
             console.log(data)
             setRefresh((prev) => !prev)
-            toast.success('Status changed successfully', {
+            toast.success(data?.msg, {
                 position: "top-right",
                 autoClose: 5000,
                 hideProgressBar: true,
@@ -251,32 +254,38 @@ export default function CoursePage() {
     const renderCell = React.useCallback((course: Course, columnKey: React.Key) => {
         const cellValue = course[columnKey as keyof Course];
 
+        let truncatedValue = cellValue || "(-)";
+
+        if (typeof truncatedValue === "string" && truncatedValue.length > 15) {
+            truncatedValue = truncatedValue.slice(0, 15) + "..."; // Truncate and add ellipsis
+        }
 
         switch (columnKey) {
             case "name":
                 return (
-                    <User
-                  
+                    // <User
 
-                        // avatarProps={{ radius: "lg",alt:"ADK" }}
-                        // description={user.email_id}
-                        name={cellValue}
-                    >
-                        {course.short_name}
-                    </User>
+
+                    //     avatarProps={{ radius: "lg",alt:"ADK" }}
+                    //     description={user.email_id}
+                    //     name=
+                    // >
+                    <div>
+                        {truncatedValue}
+                    </div>
+
+                    // </User>
                 );
             case "short_name":
                 return (
                     <div className="flex flex-col">
-                        <p className="text-bold text-small capitalize">{cellValue}</p>
+                        <p className="text-bold text-small capitalize">{truncatedValue}</p>
                         {/* <p className="text-bold text-tiny capitalize text-default-400">{user.short_name || "no data"}</p> */}
                     </div>
                 );
             case "status":
                 return (
                     <div className="flex">
-
-
                         <Chip className="capitalize" color={statusColorMap[cellValue == 1 ? 'Active' : 'Inactive']} size="sm" variant="dot">
                             {cellValue == 1 ? 'Active' : 'Inactive'}
                         </Chip>
@@ -311,15 +320,20 @@ export default function CoursePage() {
             case "duration":
                 return (
                     <div className="flex flex-col">
-                        <p className="text-bold text-small capitalize">{cellValue} {course?.duration_type || "no data"}</p>
+                        <p className="text-bold text-small capitalize">{cellValue} {course?.duration_type || "(-)"}</p>
 
                     </div>
                 )
-
+            case "seats_available":
+                return (
+                    <div>
+                        {truncatedValue}
+                    </div>
+                )      
             case "course_price":
                 return (
                     <div className="flex flex-col">
-                        <p className="text-bold text-small capitalize">{parseFloat(course.course_price).toFixed(2)} </p>
+                        <p className="text-bold text-small capitalize">{(isNaN(parseFloat(course.course_price)) || course.course_price === "" ? "(-)" : parseFloat(course.course_price).toFixed(2))} </p>
 
                     </div>
                 )
@@ -385,7 +399,7 @@ export default function CoursePage() {
     const topContent = React.useMemo(() => {
         return (
             <div className="flex flex-col gap-4">
-               
+
                 <div className="flex justify-between  gap-3 items-end">
                     <Input
                         isClearable
@@ -473,7 +487,7 @@ export default function CoursePage() {
                 <div className="flex justify-between items-center">
                     <span className="text-default-400 text-small">Total {totalCount} Courses</span>
                     <label className="flex items-center text-default-400 text-small">
-                    Rows per page: 10
+                        Rows per page: 10
                         {/* <select
                             className="bg-transparent outline-none text-default-400 text-small"
                             onChange={onRowsPerPageChange}
@@ -529,8 +543,8 @@ export default function CoursePage() {
 
 
 
-    if(loading){
-        return  <SpinLoader />
+    if (loading) {
+        return <SpinLoader />
     }
 
 

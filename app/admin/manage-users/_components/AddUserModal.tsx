@@ -98,7 +98,7 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
         zip_code: yup.string().notRequired(),
         state: yup.string().notRequired(),
         country: yup.string().notRequired(),
-        address_line_1: yup.string().required('Address is required field'),
+        address_line_1: yup.string().notRequired(),
         address_line_2: yup.string().notRequired()
     },
     );
@@ -382,7 +382,7 @@ function AddUserModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefresh
                                         labelPlacement="outside"
                                         name="role"
                                         
-                                        // selectedKeys={[formData?.role || ""]}
+                                        selectedKeys={formData?.role ? [formData.role] : undefined} 
                                     >
                                         {roles.map((role: RoleType) => (
                                             <SelectItem
