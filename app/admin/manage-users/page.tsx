@@ -117,6 +117,7 @@ export default function ManageUserPage() {
     // handle modal open view, edit
     const handleModal = async (user: any, mod: string) => {
         if (mod === "view" || mod === "edit") {
+            setLoading(true)
             setMode(mod)
             try {
                 const { data } = await axios.get(`/users/${user.id}/`, { headers: { Authorization: `Bearer ${session?.user.access_token}` } })
@@ -124,6 +125,8 @@ export default function ManageUserPage() {
                 onOpen()
             } catch (error) {
                 console.log(error)
+            }finally{
+                setLoading(false)
             }
         }
     }

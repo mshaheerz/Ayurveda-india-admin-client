@@ -3,7 +3,7 @@ import { VisuallyHidden } from "@nextui-org/react";
 import React from "react";
 
 const columns = [
-  { name: "ID", uid: "id" },
+  // { name: "ID", uid: "id" },
   { name: "Name", uid: "name", sortable: true },
   { name: "location", uid: "location", sortable: true },
   { name: "Duration", uid: "duration", sortable: true },
@@ -19,7 +19,7 @@ const statusOptions = [
   { name: "Inactive", uid: 1 },
 ];
 
-const courses = [
+const treatmnt = [
   {
     id: "3bad2a46-79a9-44e4-9311-6d42c389b174",
     name: "Treatment Name",
@@ -52,4 +52,4 @@ const courses = [
 //   avatar: "https://i.pravatar.cc/150?u=a048581f4e29026701d",
 //   email: "william.howard@example.com",
 // },
-export { columns, courses, statusOptions };
+export { columns, treatmnt, statusOptions };

@@ -21,7 +21,7 @@ import {
     SortDescriptor,
     useDisclosure
 } from "@nextui-org/react";
-import { columns, courses, statusOptions } from "./data";
+import { columns, treatmnt, statusOptions } from "./data";
 import { capitalize } from "@/lib/utils";
 import { PlusIcon } from "@/components/custom-icons/PlusIcon";
 import { VerticalDotsIcon } from "@/components/custom-icons/VerticalDotsIcon";
@@ -33,6 +33,7 @@ import { useSession } from "next-auth/react";
 import AddTreatmentModal from "./_components/AddTreatmentModal";
 import { CheckIcon, CrossIcon, CrosshairIcon, XIcon } from "lucide-react";
 import { Slide, toast } from "react-toastify";
+import TableSkeleton from "@/components/Skeletons/TableSkeleton";
 
 
 //global variables
@@ -47,7 +48,7 @@ const publishedColorMap: Record<string, ChipProps["color"]> = {
 
 }
 const INITIAL_VISIBLE_COLUMNS = ["name", "location", "duration", "actual_price", "seats_available", "is_published", "status"];
-type Course = typeof courses[0];
+type Treatments = typeof treatmnt[0];
 
 
 
@@ -72,14 +73,19 @@ export default function TreatmentPage() {
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPage, setTotalPages] = useState(1)
     const [totalCount, setTotalCount] = useState(0)
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
-      getTreatments()
+        getTreatments()
     }, [refresh, currentPage]);
 
 
     //fetch course
     const getTreatments = async () => {
+
+        if (!isOpen) (
+            setLoading(true)
+        )
         try {
             const { data } = await axios.get(`/treatment/?page=${currentPage}`, {
                 headers: {
@@ -94,6 +100,8 @@ export default function TreatmentPage() {
 
         } catch (error) {
             console.log(error)
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -225,9 +233,9 @@ export default function TreatmentPage() {
     }, [page, filteredItems, rowsPerPage]);
 
     const sortedItems = React.useMemo(() => {
-        return [...items].sort((a: Course, b: Course) => {
-            const first = a[sortDescriptor.column as keyof Course] as string;
-            const second = b[sortDescriptor.column as keyof Course] as string;
+        return [...items].sort((a: Treatments, b: Treatments) => {
+            const first = a[sortDescriptor.column as keyof Treatments] as string;
+            const second = b[sortDescriptor.column as keyof Treatments] as string;
             const cmp = first < second ? -1 : first > second ? 1 : 0;
 
             return sortDescriptor.direction === "descending" ? -cmp : cmp;
@@ -235,27 +243,25 @@ export default function TreatmentPage() {
     }, [sortDescriptor, items]);
 
 
-    const renderCell = React.useCallback((course: Course, columnKey: React.Key) => {
-        const cellValue = course[columnKey as keyof Course];
+    const renderCell = React.useCallback((course: Treatments, columnKey: React.Key) => {
+        const cellValue = course[columnKey as keyof Treatments];
+        let truncatedValue = cellValue || "(-)";
 
+        if (typeof truncatedValue === "string" && truncatedValue.length > 15) {
+            truncatedValue = truncatedValue.slice(0, 15) + "..."; // Truncate and add ellipsis
+        }
 
         switch (columnKey) {
             case "name":
                 return (
-                    <User
-                  
-
-                        // avatarProps={{ radius: "lg",alt:"ADK" }}
-                        // description={user.email_id}
-                        name={cellValue}
-                    >
-                        {course.name}
-                    </User>
+                        <div>
+                             {truncatedValue}
+                        </div>
                 );
             case "short_name":
                 return (
                     <div className="flex flex-col">
-                        <p className="text-bold text-small capitalize">{cellValue}</p>
+                        <p className="text-bold text-small capitalize">{truncatedValue}</p>
                         {/* <p className="text-bold text-tiny capitalize text-default-400">{user.short_name || "no data"}</p> */}
                     </div>
                 );
@@ -338,27 +344,33 @@ export default function TreatmentPage() {
         setPage(1);
     }, []);
 
-    const onSearchChange = React.useCallback(async (value?: string) => {
+    const onSearchChange = React.useCallback(async (value?: string, event?: React.KeyboardEvent<HTMLInputElement>) => {
+        setFilterValue(value || "");
 
-        if (value) {
-            setFilterValue(value);
-            try {
+        if (event?.key === 'Enter') {
+            if (value) {
+                setLoading(true)
 
-                console.log("true mwone")
-                const { data } = await axios.get(`/treatment/?search=${value}`, {
-                    headers: {
-                        Authorization: `Bearer ${session?.user.access_token}`
-                    }
-                });
+                try {
+
+                    console.log("true mwone")
+                    const { data } = await axios.get(`/treatment/?search=${value}`, {
+                        headers: {
+                            Authorization: `Bearer ${session?.user.access_token}`
+                        }
+                    });
 
 
 
-                setTreatments(data.data);
-            } catch (error) {
-                console.error('Error fetching users:', error);
+                    setTreatments(data.data);
+                } catch (error) {
+                    console.error('Error fetching users:', error);
+                } finally {
+                    setLoading(false)
+                }
+            } else {
+                setFilterValue("");
             }
-        } else {
-            setFilterValue("");
         }
     }, []);
 
@@ -381,6 +393,7 @@ export default function TreatmentPage() {
                         value={filterValue}
                         onClear={() => onClear()}
                         onValueChange={onSearchChange}
+                        onKeyDown={(e) => onSearchChange(filterValue, e)}
                     />
                     <div className="flex gap-3">
                         {/* <Dropdown>
@@ -459,7 +472,7 @@ export default function TreatmentPage() {
                 <div className="flex justify-between items-center">
                     <span className="text-default-400 text-small">Total {totalCount} Courses</span>
                     <label className="flex items-center text-default-400 text-small">
-                    Rows per page: 10
+                        Rows per page: 10
                         {/* <select
                             className="bg-transparent outline-none text-default-400 text-small"
                             onChange={onRowsPerPageChange}
@@ -513,11 +526,13 @@ export default function TreatmentPage() {
     }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
 
-
+    if (loading) {
+        return <TableSkeleton />
+    }
     //main component return
     return (
         <>
-            <Breadcrumb pageName="Courses" />
+            <Breadcrumb pageName="Treatments" />
             <AddTreatmentModal isOpen={isOpen} onOpen={onOpen} onOpenChange={onOpenChange} token={session?.user.access_token} refresh={refresh} setRefresh={setRefresh} onClose={onClose} mode={mode} initialData={formData} setInitialData={setFormData} />
             <div>
                 <Table

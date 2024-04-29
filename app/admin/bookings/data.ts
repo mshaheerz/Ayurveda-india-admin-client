@@ -1,13 +1,8 @@
-import axios from "@/lib/axios";
-import { VisuallyHidden } from "@nextui-org/react";
-import React from "react";
-
 const columns = [
-  { name: "ID", uid: "id" },
+  // { name: "ID", uid: "id" },
   { name: "Name", uid: "name", sortable: true },
   { name: "Email", uid: "email_id", sortable: true },
   { name: "phone", uid: "phone", sortable: true },
-  // { name: "Offer Percentage", uid: "offer_persentage", sortable: true },
   { name: "price", uid: "course_price", sortable: true },
   { name: "Course", uid: "course", sortable: true },
   { name: "course code", uid: "course_code", sortable: true },
@@ -75,14 +70,5 @@ const bookings = [
 
   
 ];
-// {
-//   id: 4,
-//   name: "William Howard",
-//   role: "C.M.",
-//   team: "Marketing",
-//   status: "vacation",
-//   age: "28",
-//   avatar: "https://i.pravatar.cc/150?u=a048581f4e29026701d",
-//   email: "william.howard@example.com",
-// },
+
 export { columns, bookings, statusOptions };

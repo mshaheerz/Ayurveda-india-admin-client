@@ -119,13 +119,17 @@ export default function CoursePage() {
     // handle modal open view, edit
     const handleModal = async (course: any, mod: string) => {
         if (mod === "view" || mod === "edit") {
+            setLoading(true)
             setMode(mod)
             try {
                 const { data } = await axios.get(`/course/${course.id}/`, { headers: { Authorization: `Bearer ${session?.user.access_token}` } })
                 setFormData(data)
+                setLoading(false)
                 onOpen()
             } catch (error) {
                 console.log(error)
+            }finally{
+                setLoading(false)
             }
         }
     }

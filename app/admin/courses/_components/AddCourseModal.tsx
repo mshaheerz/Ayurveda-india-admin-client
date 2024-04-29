@@ -1,5 +1,5 @@
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Input, Textarea, SelectItem, Select, Listbox, ListboxItem, ListboxSection } from "@nextui-org/react";
-import { PlusCircleIcon, Trash2Icon } from "lucide-react";
+import { PlusCircleIcon, Trash2Icon, XIcon } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
 import PhotosUploader from "./PhotoUploader";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -394,6 +394,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
             return (
                 <>
                     <Input
+                        required={true}
                         errorMessage={errors.start_time_morning && "End Time (Morning) is required"}
                         // defaultValue={initialData.timeline[0]?.start_time_morning} // Set initial value
                         disabled={mode === 'view'} // Disable the input in view mode
@@ -406,6 +407,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                     />
 
                     <Input
+                        required={true}
                         // defaultValue={initialData.timeline[0]?.end_time_morning}
                         errorMessage={errors.end_time_morning && "End Time (Morning) is required"}
                         disabled={mode === 'view'} // Disable the input in view mode
@@ -419,6 +421,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
 
                     <Input
+                        required={true}
                         // defaultValue={initialData.timeline[0]?.start_time_afternoon}
                         errorMessage={errors.start_time_afternoon && "Start Time (Afternoon) is required"}
                         disabled={mode === 'view'} // Disable the input in view mode
@@ -432,6 +435,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
 
                     <Input
+                        required={true}
                         // defaultValue={initialData.timeline[0]?.end_time_morning}
                         disabled={mode === 'view'}
                         errorMessage={errors.end_time_afternoon && "End Time (Afternoon) is required"}
@@ -449,6 +453,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
             return (
                 <>
                     <Input
+                        required={true}
                         // defaultValue={initialData.timeline[0]?.start_time_morning}
                         value={startTimeMorning}
                         onChange={(e) => setStartTimeMorning(e.target.value)}
@@ -462,6 +467,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
 
                     <Input
+                        required={true}
                         // defaultValue={initialData.timeline[0]?.end_time_morning}
                         disabled={mode === 'view'}
                         errorMessage={errors.end_time && "End Time is required"}
@@ -634,7 +640,10 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                 className="main-bro"
                 size={"full"}
                 isOpen={isOpen}
-                // closeButton={<div className="bg-red-500 rounded-full text-lg py-4 px-4">X</div>}
+
+                closeButton={<div style={{ backgroundColor: 'red', padding: '5px', borderRadius: '50%' }}>
+                    <XIcon size={20} color="white" />
+                </div>}
                 onClose={() => {
                     reset({
                         course_modules: [],
@@ -723,28 +732,29 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             type="text"
                                             maxLength={256}
                                             pattern=".{0,256}"
-                                            {...register("location")}
+                                            {...register("location", { required: true })}
                                         />
                                         <Input
                                             defaultValue={initialData.duration}
+                                            errorMessage={errors.duration && "Duration is required"}
                                             disabled={mode === 'view'}
                                             label="Duration*"
                                             labelPlacement="outside"
                                             type="number"
                                             maxLength={256}
                                             pattern=".{0,256}"
-                                            {...register("duration")}
+                                            {...register("duration", { required: true })}
                                         />
 
 
                                         <Select
-
+                                            errorMessage={errors.duration_type && "Duration Type is required"}
                                             isDisabled={mode === 'view'}
                                             defaultSelectedKeys={[initialData.duration_type]}
                                             label="Duration Type"
                                             placeholder="Select duration type"
                                             labelPlacement="outside"
-                                            {...register("duration_type")}
+                                            {...register("duration_type", { required: true })}
                                         >
                                             <SelectItem key={"day"} value="day">day</SelectItem>
                                             <SelectItem key={"days"} value="days">days</SelectItem>
@@ -757,6 +767,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
 
                                         <Input
+                                            errorMessage={errors.seats_available && "Seats available is required"}
                                             defaultValue={initialData.seats_available}
                                             disabled={mode === 'view'}
                                             label="Seats Available"
@@ -764,7 +775,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             type="number"
                                             maxLength={256}
                                             pattern=".{0,256}"
-                                            {...register("seats_available")}
+                                            {...register("seats_available", { required: true })}
                                         />
 
                                     </div>
@@ -793,6 +804,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
                                         {/* Timeline Type */}
                                         <Select
+                                            required={true}
                                             isDisabled={mode === 'view'}
                                             errorMessage={errors.timeline_type && "Timeline Type is required"}
                                             defaultSelectedKeys={[timeLineType || "full_day"]}
@@ -1090,7 +1102,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                                         Edit Images
                                                     </h1>
 
-                                                    <PhotosEditor setRefresh={setRefresh} authToken={token} images={initialData?.images} />
+                                                    <PhotosEditor setRefresh={setRefresh} authToken={token} images={initialData?.images} courseId={initialData?.id} />
                                                 </div>
 
                                             </>

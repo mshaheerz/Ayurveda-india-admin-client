@@ -32,6 +32,8 @@ import axios from "@/lib/axios";
 import { useSession } from "next-auth/react";
 import { CheckIcon, CrossIcon, CrosshairIcon, XIcon } from "lucide-react";
 import { Slide, toast } from "react-toastify";
+import TableSkeleton from "@/components/Skeletons/TableSkeleton";
+import ViewBookingModal from "./_components/ViewBookingModal";
 
 
 //global variables
@@ -45,8 +47,8 @@ const publishedColorMap: Record<string, ChipProps["color"]> = {
     notpublished: "danger",
 
 }
-const INITIAL_VISIBLE_COLUMNS = ["name",  "email_id", "phone", "course_price","course", "course_code", "status"];
-type Course = typeof bookings[0];
+const INITIAL_VISIBLE_COLUMNS = ["name", "email_id", "phone", "course_price", "course", "course_code", "status"];
+type Booking = typeof bookings[0];
 
 
 
@@ -71,6 +73,8 @@ export default function BookingPage() {
     const [currentPage, setCurrentPage] = useState(1)
     const [totalPage, setTotalPages] = useState(1)
     const [totalCount, setTotalCount] = useState(0)
+    const [loading, setLoading] = useState(false)
+    const [viewBooking, setViewBooking] = useState<any>()
 
     useEffect(() => {
         getCourse()
@@ -79,8 +83,8 @@ export default function BookingPage() {
 
     //fetch course
     const getCourse = async () => {
-        console.log(session?.user)
         try {
+            setLoading(true)
             const { data } = await axios.get(`booking/details/?booking_type=course&booking_user_type=unknown&page=${currentPage}`, {
                 headers: {
                     Authorization: `Bearer ${session?.user.access_token}`
@@ -94,16 +98,18 @@ export default function BookingPage() {
 
         } catch (error) {
             console.log(error)
+        } finally {
+            setLoading(false)
         }
     }
 
     // handle modal open view, edit
-    const handleModal = async (course: any, mod: string) => {
+    const handleModal = async (bookingDetails: any, mod: string) => {
         if (mod === "view" || mod === "edit") {
             setMode(mod)
             try {
-                const { data } = await axios.get(`/course/${course.id}/`, { headers: { Authorization: `Bearer ${session?.user.access_token}` } })
-                setFormData(data)
+              
+                setViewBooking(bookingDetails)
                 onOpen()
             } catch (error) {
                 console.log(error)
@@ -133,7 +139,6 @@ export default function BookingPage() {
             });
 
         } catch (error) {
-            console.log(error)
             setRefresh((prev) => !prev)
             toast.error('something went wrong', {
                 position: "top-right",
@@ -225,9 +230,9 @@ export default function BookingPage() {
     }, [page, filteredItems, rowsPerPage]);
 
     const sortedItems = React.useMemo(() => {
-        return [...items].sort((a: Course, b: Course) => {
-            const first = a[sortDescriptor.column as keyof Course] as string;
-            const second = b[sortDescriptor.column as keyof Course] as string;
+        return [...items].sort((a: Booking, b: Booking) => {
+            const first = a[sortDescriptor.column as keyof Booking] as string;
+            const second = b[sortDescriptor.column as keyof Booking] as string;
             const cmp = first < second ? -1 : first > second ? 1 : 0;
 
             return sortDescriptor.direction === "descending" ? -cmp : cmp;
@@ -236,24 +241,27 @@ export default function BookingPage() {
 
 
     const renderCell = React.useCallback((bookings: any, columnKey: any) => {
-        const cellValue = bookings[columnKey as keyof Course];
+        const cellValue = bookings[columnKey as keyof Booking];
 
 
         switch (columnKey) {
             case "name":
+                const firstName = bookings.bookinguserinformations.first_name || "";
+                const lastName = bookings.bookinguserinformations.last_name || "";
+                const fullName = (firstName + " " + lastName)?.slice(0, 15) || "(-)";
                 return (
-                    <User
-                        // avatarProps={{ radius: "lg",alt:"ADK" }}
-                        // description={user.email_id}
-                        name={bookings.bookinguserinformations.first_name + " " + bookings.bookinguserinformations.last_name}
-                    >
-                        {bookings.bookinguserinformations.first_name + bookings.bookinguserinformations.last_name}
-                    </User>
+                    <div>
+                        {fullName}
+
+                    </div>
+
                 );
             case "course":
+                const courseName = bookings.course.name || "(-)";
+                const truncatedCourseName = courseName.length > 15 ? courseName.substring(0, 15) + "..." : courseName;
                 return (
                     <div className="flex flex-col">
-                        <p className="text-bold text-small capitalize">{bookings.course.name}</p>
+                        <p className="text-bold text-small capitalize">{truncatedCourseName}</p>
                         {/* <p className="text-bold text-tiny capitalize text-default-400">{user.short_name || "no data"}</p> */}
                     </div>
                 );
@@ -274,7 +282,7 @@ export default function BookingPage() {
                                 </DropdownTrigger>
                                 <DropdownMenu>
                                     <DropdownItem onClick={() => { handleModal(bookings, "view") }}>View</DropdownItem>
-                                    <DropdownItem onClick={() => { handleModal(bookings, "edit") }}>Edit</DropdownItem>
+                                    {/* <DropdownItem onClick={() => { handleModal(bookings, "edit") }}>Edit</DropdownItem> */}
                                     {
                                         bookings.status === 1 ? <DropdownItem onClick={() => handlebookingstatus(bookings.id, '0')}> <h2 className="text-warning">Deactivate</h2></DropdownItem>
                                             : <DropdownItem onClick={() => handlebookingstatus(bookings.id, '1')}> <h2 className="text-success">Activate</h2> </DropdownItem>
@@ -288,41 +296,43 @@ export default function BookingPage() {
                 );
 
             case "course_code":
+                const courseCode = bookings?.course?.short_name || "(-)";
+                const truncatedCourseCode = courseCode.length > 15 ? courseCode.substring(0, 15) + "..." : courseCode;
                 return (
                     <div className="flex flex-col">
-                    <p className="text-bold text-small capitalize">{bookings?.course?.short_name || "no data"}</p>
+                        <p className="text-bold text-small capitalize">{truncatedCourseCode}</p>
 
-                </div>
+                    </div>
                 )
             case "email_id":
+                const emailId = bookings?.bookinguserinformations.email_id || "(-)";
+                const truncatedEmailId = emailId.length > 15 ? emailId.substring(0, 15) + "..." : emailId;
                 return (
                     <div className="flex flex-col">
-                        <p className="text-bold text-small capitalize">{bookings?.bookinguserinformations.email_id || "no data"}</p>
+                        <p className="text-bold text-small capitalize">{truncatedEmailId}</p>
 
                     </div>
                 )
 
             case "phone":
+                const phoneNumber = bookings?.bookinguserinformations.phone_number || "(-)";
+                const truncatedPhoneNumber = phoneNumber.length > 15 ? phoneNumber.substring(0, 15) + "..." : phoneNumber;
                 return (
                     <div className="flex flex-col">
-                        <p className="text-bold text-small capitalize">{bookings?.bookinguserinformations.phone_number || "no data"}</p>
+                        <p className="text-bold text-small capitalize">{truncatedPhoneNumber}</p>
 
                     </div>
                 )
 
             case "course_price":
+                const coursePrice = parseFloat(bookings?.course.course_price).toFixed(2) || "(-)";
+                const truncatedCoursePrice = coursePrice.length > 15 ? coursePrice.substring(0, 15) + "..." : coursePrice;
                 return (
                     <div className="flex flex-col">
-                        <p className="text-bold text-small capitalize">{parseFloat(bookings?.course.course_price).toFixed(2)} </p>
+                        <p className="text-bold text-small capitalize">{truncatedCoursePrice} </p>
 
                     </div>
                 )
-
-
-            // case "actions":
-            //     return (
-
-            //     );
             default:
                 return cellValue;
         }
@@ -345,10 +355,12 @@ export default function BookingPage() {
         setPage(1);
     }, []);
 
-    const onSearchChange = React.useCallback(async (value?: string) => {
+    const onSearchChange = React.useCallback(async (value?: string, event?: React.KeyboardEvent<HTMLInputElement>) => {
+        setFilterValue(value || "");
 
+        if (event?.key === 'Enter') {
         if (value) {
-            setFilterValue(value);
+            setLoading(true)
             try {
 
                 console.log("true mwone")
@@ -363,10 +375,13 @@ export default function BookingPage() {
                 setbookings(data.data);
             } catch (error) {
                 console.error('Error fetching users:', error);
+            }finally{
+                setLoading(false)
             }
         } else {
             setFilterValue("");
         }
+    }
     }, []);
 
     const onClear = React.useCallback(() => {
@@ -388,6 +403,7 @@ export default function BookingPage() {
                         value={filterValue}
                         onClear={() => onClear()}
                         onValueChange={onSearchChange}
+                        onKeyDown={(e) => onSearchChange(filterValue, e)}
                     />
                     <div className="flex gap-3">
                         {/* <Dropdown>
@@ -519,12 +535,15 @@ export default function BookingPage() {
         );
     }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
-
+    if (loading) {
+        return <TableSkeleton />
+    }
 
     //main component return
     return (
         <>
-            <Breadcrumb pageName="bookings" />
+            <Breadcrumb pageName="Bookings" />
+            <ViewBookingModal isOpen={isOpen} onOpen={onOpen} onOpenChange={onOpenChange} onClose={onClose} booking={viewBooking} />
             <div>
                 <Table
                     aria-label="Example table with custom cells, pagination and sorting"

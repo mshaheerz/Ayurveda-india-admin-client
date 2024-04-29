@@ -1,5 +1,5 @@
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Input, Textarea, SelectItem, Select, Listbox, ListboxItem, ListboxSection } from "@nextui-org/react";
-import { PlusCircleIcon, Trash2Icon } from "lucide-react";
+import { PlusCircleIcon, Trash2Icon, XIcon } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
 import PhotosUploader from "./PhotoUploader";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -7,6 +7,7 @@ import axios from "@/lib/axios";
 import { Slide, toast } from "react-toastify";
 import PhotosEditor from "./PhotoEditor";
 import ViewImages from "./ViewImages";
+import Swal from "sweetalert2";
 
 interface AddCourseProps {
     isOpen: boolean;
@@ -24,7 +25,7 @@ interface AddCourseProps {
 interface Module {
     name: string;
     description: string;
-    id?:string;
+    id?: string;
 }
 
 
@@ -65,7 +66,7 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
             try {
 
                 const formData = new FormData()
-                formData.append("id",id)
+                formData.append("id", id)
 
 
                 await axios.delete('/course/delete_module/', {
@@ -98,7 +99,7 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
 
 
 
-    
+
 
 
 
@@ -165,7 +166,7 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
 
     const onSubmit = async (data: any) => {
         console.log(data)
-       
+
 
         const intprs = modules?.map((dat: any) => {
             return {
@@ -410,32 +411,53 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
 
 
     const handlePublish = async () => {
-        try {
-            const { data } = await axios.patch(`/treatment/${initialData.id}/published/`, {
-                is_published: true
-            },
-                { headers: { Authorization: `Bearer ${token}` } })
 
-            setInitialData((prev: any) => {
-                return {
-                    ...prev,
-                    is_published: true
+
+        try {
+
+
+            Swal.fire({
+
+                title: "Do you want to publish course?",
+                showCancelButton: true,
+                confirmButtonText: "Confirm",
+                animation: true,
+                backdrop: false,
+
+
+
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    const { data } = await axios.patch(`/treatment/${initialData.id}/published/`, {
+                        is_published: true
+                    },
+                        { headers: { Authorization: `Bearer ${token}` } })
+
+                    setInitialData((prev: any) => {
+                        return {
+                            ...prev,
+                            is_published: true
+                        }
+                    })
+
+                    setRefresh((prev: boolean) => !prev)
+
+                    toast.success('Course Published successfully', {
+                        position: "top-right",
+                        autoClose: 5000,
+                        hideProgressBar: true,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "dark",
+                        transition: Slide,
+                    });
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.close();
                 }
             })
 
-            setRefresh((prev: boolean) => !prev)
-
-            toast.success('Course Published successfully', {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: true,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-                transition: Slide,
-            });
         } catch (error) {
             toast.error('Sometning went wrong Please try again', {
                 position: "top-right",
@@ -455,31 +477,54 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
 
     const handleUnPublish = async () => {
         try {
-            const { data } = await axios.patch(`/treatment/${initialData.id}/published/`, {
-                is_published: false
-            },
-                { headers: { Authorization: `Bearer ${token}` } })
 
-            setInitialData((prev: any) => {
-                return {
-                    ...prev,
-                    is_published: false
+
+            Swal.fire({
+
+                title: "Do you want to publish course?",
+                showCancelButton: true,
+                confirmButtonText: "Confirm",
+                animation: true,
+                backdrop: false,
+
+
+
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    const { data } = await axios.patch(`/treatment/${initialData.id}/published/`, {
+                        is_published: false
+                    },
+                        { headers: { Authorization: `Bearer ${token}` } })
+
+                    setInitialData((prev: any) => {
+                        return {
+                            ...prev,
+                            is_published: false
+                        }
+                    })
+                    setRefresh((prev: boolean) => !prev)
+                    toast.success('Course Unpublished', {
+                        position: "top-right",
+                        autoClose: 5000,
+                        hideProgressBar: true,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "dark",
+                        transition: Slide,
+                    });
+
+                    console.log(data)
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    Swal.close();
                 }
-            })
-            setRefresh((prev: boolean) => !prev)
-            toast.success('Course Unpublished', {
-                position: "top-right",
-                autoClose: 5000,
-                hideProgressBar: true,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-                theme: "dark",
-                transition: Slide,
-            });
 
-            console.log(data)
+            })
+
+
+
+
         } catch (error) {
             console.log(error)
             toast.error('Something went wrong try again', {
@@ -502,6 +547,9 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
             <Modal
                 size={"full"}
                 isOpen={isOpen}
+                closeButton={<div style={{ backgroundColor: 'red', padding: '5px', borderRadius: '50%' }}>
+                    <XIcon size={20} color="white" />
+                </div>}
                 onClose={() => {
                     reset({
                         course_modules: [],
@@ -548,7 +596,7 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                         />
 
 
-                                        
+
 
                                     </div>
 
@@ -637,14 +685,14 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
 
 
 
-                         {/* modules */}
+                                    {/* modules */}
 
                                     <div className="mb-4">
                                         {
                                             mode == "view" && (
                                                 <>
                                                     <h1 className="text-black dark:text-white font-bold">
-                                                         Modules
+                                                        Modules
                                                     </h1>
                                                 </>
                                             )
