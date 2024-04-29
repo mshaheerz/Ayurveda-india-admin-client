@@ -270,9 +270,9 @@ export default function BookingPage() {
                     <div className="flex">
 
 
-                        <Chip className="capitalize" color={statusColorMap[cellValue == 1 ? 'Active' : 'Inactive']} size="sm" variant="dot">
+                        {/* <Chip className="capitalize" color={statusColorMap[cellValue == 1 ? 'Active' : 'Inactive']} size="sm" variant="dot">
                             {cellValue == 1 ? 'Active' : 'Inactive'}
-                        </Chip>
+                        </Chip> */}
                         <div className="relative flex justify-center items-center gap-2">
                             <Dropdown>
                                 <DropdownTrigger>
@@ -282,13 +282,13 @@ export default function BookingPage() {
                                 </DropdownTrigger>
                                 <DropdownMenu>
                                     <DropdownItem onClick={() => { handleModal(bookings, "view") }}>View</DropdownItem>
-                                    {/* <DropdownItem onClick={() => { handleModal(bookings, "edit") }}>Edit</DropdownItem> */}
-                                    {
+                                    
+                                    {/* {
                                         bookings.status === 1 ? <DropdownItem onClick={() => handlebookingstatus(bookings.id, '0')}> <h2 className="text-warning">Deactivate</h2></DropdownItem>
                                             : <DropdownItem onClick={() => handlebookingstatus(bookings.id, '1')}> <h2 className="text-success">Activate</h2> </DropdownItem>
 
-                                    }
-                                    <DropdownItem onClick={() => handleDelete(bookings.id)}>Delete</DropdownItem>
+                                    } */}
+                                    {/* <DropdownItem onClick={() => handleDelete(bookings.id)}>Delete</DropdownItem> */}
                                 </DropdownMenu>
                             </Dropdown>
                         </div>

@@ -6,7 +6,7 @@ const columns = [
   { name: "price", uid: "course_price", sortable: true },
   { name: "Course", uid: "course", sortable: true },
   { name: "course code", uid: "course_code", sortable: true },
-  { name: "status", uid: "status" },
+  { name: "action", uid: "status" },
 ];
 
 const statusOptions = [
