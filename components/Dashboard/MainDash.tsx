@@ -13,6 +13,7 @@ import dynamic from "next/dynamic";
 import { BookOpenText, Calculator, GraduationCapIcon, Pencil } from "lucide-react";
 import axios from "@/lib/axios";
 import { useSession } from "next-auth/react";
+import DashboardSkeleton from "../Skeletons/DashboardSkeleton";
 // const MapOne = dynamic(() => import("../Maps/MapOne"), {
 //     ssr: false,
 // });
@@ -30,6 +31,7 @@ interface countType {
 
 const MainDash: React.FC = () => {
     const [counts, setCounts] = useState<countType>()
+    const [loading, setLoading] = useState(false)
 
     useLayoutEffect(()=>{
         getCounts()
@@ -37,16 +39,22 @@ const MainDash: React.FC = () => {
 
     const getCounts = async()=> {
         try {
+            setLoading(true)
             const {data} = await axios.get('/dashboard/',{headers:{Authorization:`Bearer ${session?.user?.access_token}`}});
             setCounts(data.counts)
         } catch (error) {
             
+        }finally {
+            setLoading(false)
         }
     }
     const { data: session } = useSession()
+
+    if(loading){
+        return <DashboardSkeleton />
+    }
     return (
         <>
-
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
                 <CardDataStats title="Treatments" total={counts?.treatment?.toString() || "0"} rate="" >
                 <BookOpenText width={22} height={20} className="stroke-primary dark:stroke-white"  />
