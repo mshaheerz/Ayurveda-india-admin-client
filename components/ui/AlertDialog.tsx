@@ -1,7 +1,7 @@
 import React from 'react';
 import * as AlertDialog from '@radix-ui/react-alert-dialog';
 
-const AlertDialogs = ({ title, description, buttonText,onConfirm }) => (
+const AlertDialogs = ({ title, description, buttonText,onConfirm }:any) => (
     <AlertDialog.Root>
         {/* <AlertDialog.Trigger asChild>
       <button className="text-violet11 hover:bg-mauve3 shadow-blackA4 inline-flex h-[35px] items-center justify-center rounded-[4px] bg-white px-[15px] font-medium leading-none shadow-[0_2px_10px] outline-none focus:shadow-[0_0_0_2px] focus:shadow-black">
