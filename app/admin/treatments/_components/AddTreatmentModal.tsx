@@ -70,7 +70,7 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                 formData.append("id", id)
 
 
-                await axios.delete('/course/delete_module/', {
+                await axios.delete('/treatment/delete_module/', {
                     data: formData,
                     headers: {
                         Authorization: `Bearer ${token}`, // Include your authentication token
