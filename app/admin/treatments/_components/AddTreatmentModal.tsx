@@ -824,8 +824,7 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                                     <h1 className="text-black dark:text-white font-bold ">
                                                         Edit Images
                                                     </h1>
-
-                                                    <PhotosEditor setRefresh={setRefresh} authToken={token} images={initialData?.treatmentimages_treatment} />
+                                                    <PhotosEditor setRefresh={setRefresh} authToken={token} images={initialData?.treatmentimages_treatment} treatmentId={initialData?.id} />
                                                 </div>
 
                                             </>
