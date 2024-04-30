@@ -205,7 +205,7 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                 console.log(data)
                 setRefresh((prev: boolean) => !prev)
                 reset()
-                toast.success('Course Details edited successfully', {
+                toast.success('Treatment Details edited successfully', {
                     position: "top-right",
                     autoClose: 5000,
                     hideProgressBar: true,
@@ -263,7 +263,7 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                 console.log(data)
                 setRefresh((prev: boolean) => !prev)
                 reset()
-                toast.success('Course Added successfully', {
+                toast.success('Treatment Added successfully', {
                     position: "top-right",
                     autoClose: 5000,
                     hideProgressBar: true,
@@ -421,7 +421,7 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
 
             Swal.fire({
 
-                title: "Do you want to publish course?",
+                title: "Do you want to publish Treatment?",
                 showCancelButton: true,
                 confirmButtonText: "Confirm",
                 animation: true,
@@ -445,7 +445,7 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
 
                     setRefresh((prev: boolean) => !prev)
 
-                    toast.success('Course Published successfully', {
+                    toast.success('Treatment Published successfully', {
                         position: "top-right",
                         autoClose: 5000,
                         hideProgressBar: true,
@@ -484,7 +484,7 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
 
             Swal.fire({
 
-                title: "Do you want to publish course?",
+                title: "Do you want to publish Treatment?",
                 showCancelButton: true,
                 confirmButtonText: "Confirm",
                 animation: true,
@@ -506,7 +506,7 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                         }
                     })
                     setRefresh((prev: boolean) => !prev)
-                    toast.success('Course Unpublished', {
+                    toast.success('Treatment Unpublished', {
                         position: "top-right",
                         autoClose: 5000,
                         hideProgressBar: true,
