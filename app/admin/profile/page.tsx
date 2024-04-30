@@ -9,7 +9,7 @@ function ProfilePage() {
 
     const { data: session } = useSession()
     const [loading, setLoading] = useState(false)
-    const [user, setUser] = useState({})
+    const [user, setUser] = useState<any>({})
     useEffect(() => {
         fetchUserProfile();
     }, [])
@@ -43,19 +43,19 @@ function ProfilePage() {
             <h2 className="text-2xl font-bold mb-4">User Details</h2>
             <div className="grid grid-cols-2 gap-x-4 gap-y-2">
               <div className="text-gray-600 dark:text-gray-400">First Name:</div>
-              <div>{user.first_name}</div>
+              <div>{user?.first_name}</div>
               <div className="text-gray-600 dark:text-gray-400">Last Name:</div>
-              <div>{user.last_name}</div>
+              <div>{user?.last_name}</div>
               <div className="text-gray-600 dark:text-gray-400">Email:</div>
-              <div>{user.email_id}</div>
+              <div>{user?.email_id}</div>
               <div className="text-gray-600 dark:text-gray-400">Phone Number:</div>
-              <div>{user.phone_number}</div>
+              <div>{user?.phone_number}</div>
               <div className="text-gray-600 dark:text-gray-400">Country:</div>
-              <div>{user.country}</div>
+              <div>{user?.country}</div>
               <div className="text-gray-600 dark:text-gray-400">State:</div>
-              <div>{user.state}</div>
+              <div>{user?.state}</div>
               <div className="text-gray-600 dark:text-gray-400">City:</div>
-              <div>{user.city}</div>
+              <div>{user?.city}</div>
               {/* Add more fields as needed */}
             </div>
           </div>
