@@ -727,7 +727,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             defaultValue={initialData.location}
                                             disabled={mode === 'view'}
                                             errorMessage={errors.location && "Location is required"}
-                                            label="Location"
+                                            label={<FormLabel label="Location" symbolEnable={true} />}
                                             labelPlacement="outside"
                                             type="text"
                                             maxLength={256}
@@ -738,7 +738,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             defaultValue={initialData.duration}
                                             errorMessage={errors.duration && "Duration is required"}
                                             disabled={mode === 'view'}
-                                            label="Duration*"
+                                            label={<FormLabel label="Duration" symbolEnable={true} />}
                                             labelPlacement="outside"
                                             type="number"
                                             maxLength={256}
@@ -750,8 +750,8 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                         <Select
                                             errorMessage={errors.duration_type && "Duration Type is required"}
                                             isDisabled={mode === 'view'}
-                                            defaultSelectedKeys={[initialData.duration_type]}
-                                            label="Duration Type"
+                                            defaultSelectedKeys={initialData.duration_type ? [initialData.duration_type] : undefined}
+                                            label={<FormLabel label="Duration Type" symbolEnable={true} />}
                                             placeholder="Select duration type"
                                             labelPlacement="outside"
                                             {...register("duration_type", { required: true })}
@@ -770,7 +770,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             errorMessage={errors.seats_available && "Seats available is required"}
                                             defaultValue={initialData.seats_available}
                                             disabled={mode === 'view'}
-                                            label="Seats Available"
+                                            label={<FormLabel label="Seats Available" symbolEnable={true} />}
                                             labelPlacement="outside"
                                             type="number"
                                             maxLength={256}
@@ -808,7 +808,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             isDisabled={mode === 'view'}
                                             errorMessage={errors.timeline_type && "Timeline Type is required"}
                                             defaultSelectedKeys={[timeLineType || "full_day"]}
-                                            label="Timeline Type"
+                                            label={<FormLabel label="Timeline Type" symbolEnable={true} />}
                                             onChange={(e) => setTimeLineType(e.target.value)}
                                             labelPlacement="outside"
                                             placeholder="Select timeline type"

@@ -8,6 +8,7 @@ import { Slide, toast } from "react-toastify";
 import PhotosEditor from "./PhotoEditor";
 import ViewImages from "./ViewImages";
 import Swal from "sweetalert2";
+import FormLabel from "@/components/Formhelpers/FormLabel";
 
 interface AddCourseProps {
     isOpen: boolean;
@@ -216,8 +217,9 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                     transition: Slide,
                 });
                 onClose();
-            } catch (error) {
-                toast.error('Something went wrong Please try again', {
+            } catch (error: any) {
+                const msg = error?.response?.data?.msg || 'something went wrong try again'
+                toast.error(msg, {
                     position: "top-right",
                     autoClose: 5000,
                     hideProgressBar: true,
@@ -273,8 +275,9 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                     transition: Slide,
                 });
                 onClose();
-            } catch (error) {
-                toast.success('Something went wrong please try again', {
+            } catch (error: any) {
+                const msg = error?.response?.data?.msg || 'something went wrong try again'
+                toast.error(msg, {
                     position: "top-right",
                     autoClose: 5000,
                     hideProgressBar: true,
@@ -588,7 +591,7 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                         <Input
                                             defaultValue={initialData.name}
                                             disabled={mode === 'view'}
-                                            label="Name"
+                                            label={<FormLabel label="Name" symbolEnable={true} />}
                                             errorMessage={errors.name && "Name is required"}
                                             labelPlacement="outside"
                                             type="text"
@@ -605,18 +608,22 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                             defaultValue={initialData.description}
                                             disabled={mode === 'view'}
                                             errorMessage={errors.description && "Description is required"}
-                                            label="Description"
+                                            label={<FormLabel label="Description" symbolEnable={true} />}
                                             labelPlacement="outside"
                                             {...register("description", { required: true })}
                                         />
                                     </div>
+
+
+
+
 
                                     <div className="flex w-full flex-wrap md:flex-nowrap gap-4 pb-5">
                                         <Input
                                             defaultValue={initialData.location}
                                             disabled={mode === 'view'}
                                             errorMessage={errors.location && "Location is required"}
-                                            label="Location"
+                                            label={<FormLabel label="Location" symbolEnable={true} />}
                                             labelPlacement="outside"
                                             type="text"
                                             {...register("location", { required: true })}
@@ -624,7 +631,7 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                         <Input
                                             defaultValue={initialData.duration}
                                             disabled={mode === 'view'}
-                                            label="Duration"
+                                            label={<FormLabel label="Duration" symbolEnable={true} />}
                                             labelPlacement="outside"
                                             type="number"
                                             {...register("duration", { required: true })}
@@ -634,9 +641,10 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                         <Select
 
                                             isDisabled={mode === 'view'}
-                                            defaultSelectedKeys={[initialData.duration_type]}
-                                            label="Duration Type"
+                                            defaultSelectedKeys={initialData.duration_type ? [initialData.duration_type] : undefined}
+                                            label={<FormLabel label="Duration Type" symbolEnable={true} />}
                                             labelPlacement="outside"
+                                            placeholder="Select duration"
                                             {...register("duration_type", { required: true })}
                                         >
                                             <SelectItem key={"day"} value="day">day</SelectItem>
@@ -652,7 +660,7 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                         <Input
                                             defaultValue={initialData.seats_available}
                                             disabled={mode === 'view'}
-                                            label="Seats Available"
+                                            label={<FormLabel label="Seats Available" symbolEnable={true} />}
                                             labelPlacement="outside"
                                             type="number"
                                             {...register("seats_available", { required: true })}
@@ -664,7 +672,7 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                         <Input
                                             defaultValue={initialData.actual_price}
                                             disabled={mode === 'view'}
-                                            label="Price"
+                                            label={<FormLabel label="Price" symbolEnable={true} />}
                                             labelPlacement="outside"
                                             type="number"
                                             {...register("actual_price", { required: true })}
@@ -675,11 +683,39 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                             label="Offer Percentage"
                                             labelPlacement="outside"
                                             type="number"
-                                            {...register("offer_persentage", { required: true })}
+                                            {...register("offer_persentage")}
                                         />
 
 
 
+                                    </div>
+
+                                    <div className="flex w-full flex-wrap md:flex-nowrap gap-4 pb-5">
+                                        <Textarea
+                                            defaultValue={initialData.why_treatment1}
+                                            disabled={mode === 'view'}
+                                            label="Why treatment?"
+                                            labelPlacement="outside"
+                                            {...register("why_treatment1")}
+                                        />
+
+                                        <Textarea
+                                            defaultValue={initialData.why_treatment2}
+                                            disabled={mode === 'view'}
+                                            errorMessage={errors.description && "Description is required"}
+                                            label="Why treatment 2 ?"
+                                            labelPlacement="outside"
+                                            {...register("why_treatment2")}
+                                        />
+
+                                        <Textarea
+                                            defaultValue={initialData.why_treatment3}
+                                            disabled={mode === 'view'}
+                                            errorMessage={errors.description && "Description is required"}
+                                            label="Why treatment 3 ?"
+                                            labelPlacement="outside"
+                                            {...register("why_treatment3")}
+                                        />
                                     </div>
 
 
