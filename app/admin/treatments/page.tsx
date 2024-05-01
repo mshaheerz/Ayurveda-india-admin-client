@@ -34,6 +34,7 @@ import AddTreatmentModal from "./_components/AddTreatmentModal";
 import { CheckIcon, CrossIcon, CrosshairIcon, XIcon } from "lucide-react";
 import { Slide, toast } from "react-toastify";
 import TableSkeleton from "@/components/Skeletons/TableSkeleton";
+import { callAlert } from "../manage-users/_components/AlertBox";
 
 
 //global variables
@@ -243,8 +244,8 @@ export default function TreatmentPage() {
     }, [sortDescriptor, items]);
 
 
-    const renderCell = React.useCallback((course: Treatments, columnKey: React.Key) => {
-        const cellValue = course[columnKey as keyof Treatments];
+    const renderCell = React.useCallback((treatmnt: Treatments, columnKey: React.Key) => {
+        const cellValue = treatmnt[columnKey as keyof Treatments];
         let truncatedValue = cellValue || "(-)";
 
         if (typeof truncatedValue === "string" && truncatedValue.length > 15) {
@@ -254,9 +255,9 @@ export default function TreatmentPage() {
         switch (columnKey) {
             case "name":
                 return (
-                        <div>
-                             {truncatedValue}
-                        </div>
+                    <div>
+                        {truncatedValue}
+                    </div>
                 );
             case "short_name":
                 return (
@@ -281,14 +282,14 @@ export default function TreatmentPage() {
                                     </Button>
                                 </DropdownTrigger>
                                 <DropdownMenu>
-                                    <DropdownItem onClick={() => { handleModal(course, "view") }}>View</DropdownItem>
-                                    <DropdownItem onClick={() => { handleModal(course, "edit") }}>Edit</DropdownItem>
+                                    <DropdownItem onClick={() => { handleModal(treatmnt, "view") }}>View</DropdownItem>
+                                    <DropdownItem onClick={() => { handleModal(treatmnt, "edit") }}>Edit</DropdownItem>
                                     {
-                                        course.status === 1 ? <DropdownItem onClick={() => handleTreatmentStatus(course.id, '0')}> <h2 className="text-warning">Deactivate</h2></DropdownItem>
-                                            : <DropdownItem onClick={() => handleTreatmentStatus(course.id, '1')}> <h2 className="text-success">Activate</h2> </DropdownItem>
+                                        treatmnt.status === 1 ? <DropdownItem onClick={() => handleTreatmentStatus(treatmnt.id, '0')}> <h2 className="text-warning">Deactivate</h2></DropdownItem>
+                                            : <DropdownItem onClick={() => handleTreatmentStatus(treatmnt.id, '1')}> <h2 className="text-success">Activate</h2> </DropdownItem>
 
                                     }
-                                    <DropdownItem onClick={() => handleDelete(course.id)}>Delete</DropdownItem>
+                                    <DropdownItem onClick={() => callAlert(() => handleDelete(treatmnt.id))}>Delete</DropdownItem>
                                 </DropdownMenu>
                             </Dropdown>
                         </div>
@@ -304,7 +305,7 @@ export default function TreatmentPage() {
             case "duration":
                 return (
                     <div className="flex flex-col">
-                        <p className="text-bold text-small capitalize">{cellValue} {course?.duration_type || "no data"}</p>
+                        <p className="text-bold text-small capitalize">{cellValue} {treatmnt?.duration_type || "no data"}</p>
 
                     </div>
                 )
@@ -312,7 +313,7 @@ export default function TreatmentPage() {
             case "course_price":
                 return (
                     <div className="flex flex-col">
-                        <p className="text-bold text-small capitalize">{parseFloat(course.course_price).toFixed(2)} </p>
+                        <p className="text-bold text-small capitalize">{parseFloat(treatmnt.course_price).toFixed(2)} </p>
 
                     </div>
                 )

@@ -33,6 +33,10 @@ import axios from "@/lib/axios";
 import { useSession } from "next-auth/react";
 import { Slide, toast } from "react-toastify";
 import TableSkeleton from "@/components/Skeletons/TableSkeleton";
+import Swal from "sweetalert2";
+import { alertStyle } from "@/app/constatnts";
+import { callAlert } from "@/app/admin/manage-users/_components/AlertBox";
+
 
 //global variables
 const statusColorMap: Record<string, ChipProps["color"]> = {
@@ -109,7 +113,7 @@ export default function ManageUserPage() {
             setTotalPages(data.total_pages)
         } catch (error) {
             console.log(error)
-        }finally{
+        } finally {
             setLoading(false)
         }
     }
@@ -125,7 +129,7 @@ export default function ManageUserPage() {
                 onOpen()
             } catch (error) {
                 console.log(error)
-            }finally{
+            } finally {
                 setLoading(false)
             }
         }
@@ -150,6 +154,7 @@ export default function ManageUserPage() {
     }
 
 
+
     //delete handler
     const handleDelete = async (id: string) => {
         try {
@@ -170,7 +175,7 @@ export default function ManageUserPage() {
                 theme: "dark",
                 transition: Slide,
             });
-        } catch (error:any) {
+        } catch (error: any) {
 
             toast.error(error?.response?.data.msg || 'Something went wrong Please Try again', {
                 position: "top-right",
@@ -334,7 +339,7 @@ export default function ManageUserPage() {
 
                                     }
 
-                                    <DropdownItem onClick={() => handleDelete(user.id)}><h2 className="text-danger">Delete</h2></DropdownItem>
+                                    <DropdownItem onClick={() =>  callAlert(()=> handleDelete(user.id))}><h2 className="text-danger">Delete</h2></DropdownItem>
                                 </DropdownMenu>
                             </Dropdown>
                         </div>
@@ -391,7 +396,7 @@ export default function ManageUserPage() {
                     setUsers(transformedUsers);
                 } catch (error) {
                     console.error('Error fetching users:', error);
-                }finally{
+                } finally {
                     setLoading(false)
                 }
             } else {

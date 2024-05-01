@@ -2,7 +2,7 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDi
 import { PlusCircleIcon, Trash2Icon, XIcon } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
 import PhotosUploader from "./PhotoUploader";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
 import axios from "@/lib/axios";
 import { Slide, toast } from "react-toastify";
 import PhotosEditor from "./PhotoEditor";
@@ -10,6 +10,8 @@ import ViewImages from "./ViewImages";
 import LoadingOverlay from "@/components/common/OverLayLoading";
 import FormLabel from "@/components/Formhelpers/FormLabel";
 import Swal from 'sweetalert2'
+import '@sweetalert2/theme-dark/dark.css';
+import { alertStyle } from "@/app/constatnts";
 
 
 interface AddCourseProps {
@@ -359,7 +361,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                 });
                 onClose();
             } catch (error) {
-                toast.success('Something went wrong please try again', {
+                toast.error('Something went wrong please try again', {
                     position: "top-right",
                     autoClose: 5000,
                     hideProgressBar: true,
@@ -511,7 +513,10 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                 showCancelButton: true,
                 confirmButtonText: "Confirm",
                 animation: true,
+
                 backdrop: false,
+                customClass: alertStyle,
+                icon: "warning",
 
 
 
@@ -574,13 +579,13 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
 
             Swal.fire({
-
                 title: "Do you want to publish course?",
                 showCancelButton: true,
                 confirmButtonText: "Confirm",
                 animation: true,
                 backdrop: false,
-
+                customClass: alertStyle,
+                icon: "warning",
 
 
             }).then(async (result) => {
@@ -637,6 +642,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
     return (
         <>
             <Modal
+                isDismissable={false}
                 className="main-bro"
                 size={"full"}
                 isOpen={isOpen}
@@ -716,8 +722,8 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             label={<FormLabel label="Description" symbolEnable={true} />}
                                             labelPlacement="outside"
                                             placeholder="Course description"
-                                            maxLength={556}
-                                            pattern=".{0,556}"
+                                            maxLength={856}
+                                            pattern=".{0,856}"
                                             {...register("description", { required: true })}
                                         />
                                     </div>
@@ -795,11 +801,23 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             defaultValue={initialData.offer_persentage}
                                             disabled={mode === 'view'}
                                             label="Offer Percentage"
+
                                             labelPlacement="outside"
                                             type="number"
-                                            maxLength={256}
-                                            pattern=".{0,256}"
-                                            {...register("offer_persentage")}
+                                            errorMessage={(errors?.offer_persentage ? errors?.offer_persentage?.message as ReactNode : '')}
+                                            // maxLength={256}
+                                            // max={100}
+                                            // pattern=".{0,256}"
+                                            {...register("offer_persentage", {
+                                                validate: value => {
+                                                    if (value) {
+                                                        return parseInt(value) <= 100 || "Offer percentage must be less than or equal to 100"
+
+                                                    }
+                                                    return true;
+
+                                                }
+                                            })}
                                         />
 
                                         {/* Timeline Type */}

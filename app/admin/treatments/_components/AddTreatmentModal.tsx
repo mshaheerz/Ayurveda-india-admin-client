@@ -2,13 +2,14 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDi
 import { PlusCircleIcon, Trash2Icon, XIcon } from "lucide-react";
 import { useFieldArray, useForm } from "react-hook-form";
 import PhotosUploader from "./PhotoUploader";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { ReactNode, useEffect, useLayoutEffect, useRef, useState } from "react";
 import axios from "@/lib/axios";
 import { Slide, toast } from "react-toastify";
 import PhotosEditor from "./PhotoEditor";
 import ViewImages from "./ViewImages";
 import Swal from "sweetalert2";
 import FormLabel from "@/components/Formhelpers/FormLabel";
+import { alertStyle } from "@/app/constatnts";
 
 interface AddCourseProps {
     isOpen: boolean;
@@ -426,6 +427,8 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                 confirmButtonText: "Confirm",
                 animation: true,
                 backdrop: false,
+                customClass: alertStyle,
+                icon: "warning",
 
 
 
@@ -489,6 +492,8 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                 confirmButtonText: "Confirm",
                 animation: true,
                 backdrop: false,
+                customClass: alertStyle,
+                icon: "warning",
 
 
 
@@ -549,6 +554,7 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
         <>
             <Modal
                 size={"full"}
+                isDismissable={false}
                 isOpen={isOpen}
                 closeButton={<div style={{ backgroundColor: 'red', padding: '5px', borderRadius: '50%' }}>
                     <XIcon size={20} color="white" />
@@ -595,6 +601,8 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                             errorMessage={errors.name && "Name is required"}
                                             labelPlacement="outside"
                                             type="text"
+                                            maxLength={256}
+                                            pattern=".{0,256}"
                                             {...register("name", { required: true })}
                                         />
 
@@ -610,6 +618,8 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                             errorMessage={errors.description && "Description is required"}
                                             label={<FormLabel label="Description" symbolEnable={true} />}
                                             labelPlacement="outside"
+                                            maxLength={856}
+                                            pattern=".{0,856}"
                                             {...register("description", { required: true })}
                                         />
                                     </div>
@@ -626,6 +636,8 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                             label={<FormLabel label="Location" symbolEnable={true} />}
                                             labelPlacement="outside"
                                             type="text"
+                                            maxLength={256}
+                                            pattern=".{0,256}"
                                             {...register("location", { required: true })}
                                         />
                                         <Input
@@ -633,6 +645,8 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                             disabled={mode === 'view'}
                                             label={<FormLabel label="Duration" symbolEnable={true} />}
                                             labelPlacement="outside"
+                                            maxLength={256}
+                                            pattern=".{0,256}"
                                             type="number"
                                             {...register("duration", { required: true })}
                                         />
@@ -663,6 +677,8 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                             label={<FormLabel label="Seats Available" symbolEnable={true} />}
                                             labelPlacement="outside"
                                             type="number"
+                                            maxLength={256}
+                                            pattern=".{0,256}"
                                             {...register("seats_available", { required: true })}
                                         />
 
@@ -675,6 +691,8 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                             label={<FormLabel label="Price" symbolEnable={true} />}
                                             labelPlacement="outside"
                                             type="number"
+                                            maxLength={256}
+                                            pattern=".{0,256}"
                                             {...register("actual_price", { required: true })}
                                         />
                                         <Input
@@ -683,7 +701,18 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                             label="Offer Percentage"
                                             labelPlacement="outside"
                                             type="number"
-                                            {...register("offer_persentage")}
+                                            errorMessage={(errors?.offer_persentage ? errors?.offer_persentage?.message as ReactNode : '')}
+                                            {...register("offer_persentage", {
+                                                validate: value => {
+                                                    if (value) {
+                                                        return parseInt(value) <= 100 || "Offer percentage must be less than or equal to 100"
+
+                                                    }
+                                                    return true;
+
+                                                }
+                                            })}
+
                                         />
 
 
@@ -696,6 +725,8 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                             disabled={mode === 'view'}
                                             label="Why treatment?"
                                             labelPlacement="outside"
+                                            maxLength={556}
+                                            pattern=".{0,556}"
                                             {...register("why_treatment1")}
                                         />
 
@@ -705,6 +736,8 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                             errorMessage={errors.description && "Description is required"}
                                             label="Why treatment 2 ?"
                                             labelPlacement="outside"
+                                            maxLength={556}
+                                            pattern=".{0,556}"
                                             {...register("why_treatment2")}
                                         />
 
@@ -714,6 +747,8 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                             errorMessage={errors.description && "Description is required"}
                                             label="Why treatment 3 ?"
                                             labelPlacement="outside"
+                                            maxLength={556}
+                                            pattern=".{0,556}"
                                             {...register("why_treatment3")}
                                         />
                                     </div>
@@ -806,6 +841,8 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                                         disabled={mode === 'view'}
                                                         label={`Module Name ${index + 1}`}
                                                         labelPlacement="outside"
+                                                        maxLength={256}
+                                                        pattern=".{0,256}"
                                                     // {...register(`course_modules[${index}].name`, { required: true })}
                                                     />
 
@@ -816,6 +853,8 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                                         defaultValue={module.description} // Set default value
                                                         label={`Module Description ${index + 1}`}
                                                         labelPlacement="outside"
+                                                        maxLength={256}
+                                                        pattern=".{0,256}"
                                                         value={module.description}
                                                         onChange={(e) => handleTheoryModuleChange(index, 'description', e.target.value)}
                                                     // {...register(`course_modules[${index}].description`, { required: true })}

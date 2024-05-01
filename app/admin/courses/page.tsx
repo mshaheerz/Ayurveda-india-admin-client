@@ -38,6 +38,7 @@ import { Slide, toast } from "react-toastify";
 import Loader from "@/components/common/Loader";
 import SpinLoader from "@/components/common/spinLoader";
 import TableSkeleton from "@/components/Skeletons/TableSkeleton";
+import { callAlert } from "../manage-users/_components/AlertBox";
 
 
 //global variables
@@ -51,7 +52,7 @@ const publishedColorMap: Record<string, ChipProps["color"]> = {
     notpublished: "danger",
 
 }
-const INITIAL_VISIBLE_COLUMNS = ["name", "short_name", "duration", "course_price", "seats_available", "is_published", "status"];
+const INITIAL_VISIBLE_COLUMNS = ["name", "short_name", "duration", "actual_course_price", "offer_persentage", "course_price", "seats_available", "is_published", "status"];
 type Course = typeof courses[0];
 
 
@@ -128,7 +129,7 @@ export default function CoursePage() {
                 onOpen()
             } catch (error) {
                 console.log(error)
-            }finally{
+            } finally {
                 setLoading(false)
             }
         }
@@ -311,7 +312,7 @@ export default function CoursePage() {
                                             : <DropdownItem onClick={() => handleCourseStatus(course.id, '1')}> <h2 className="text-success">Activate</h2> </DropdownItem>
 
                                     }
-                                    <DropdownItem onClick={() => handleDelete(course.id)}>Delete</DropdownItem>
+                                    <DropdownItem onClick={() => callAlert(()=>handleDelete(course.id), "Are you sure to delete ?") }>Delete</DropdownItem>
                                 </DropdownMenu>
                             </Dropdown>
                         </div>
@@ -335,6 +336,22 @@ export default function CoursePage() {
                 return (
                     <div>
                         {truncatedValue}
+                    </div>
+                )
+
+            case "actual_course_price":
+                return (
+                    <div className="flex flex-col">
+                        <p className="text-bold text-small capitalize">{(isNaN(parseFloat(course.actual_course_price)) || course.actual_course_price === "" ? "(-)" : parseFloat(course.actual_course_price).toFixed(2))}  </p>
+
+                    </div>
+                )
+
+            case "offer_persentage":
+                return (
+                    <div className="flex flex-col">
+                        <p className="text-bold text-small capitalize">{truncatedValue} </p>
+
                     </div>
                 )
             case "course_price":
@@ -564,7 +581,7 @@ export default function CoursePage() {
         );
     }, [selectedKeys, items.length, page, pages, hasSearchFilter]);
 
-    if(load){
+    if (load) {
         return <TableSkeleton />
     }
 

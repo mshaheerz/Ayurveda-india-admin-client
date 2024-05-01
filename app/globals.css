@@ -1,5 +1,4 @@
 @import url("https://fonts.cdnfonts.com/css/satoshi"); 
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -179,4 +178,35 @@ span.flatpickr-weekday,
 
 .map-btn .jvectormap-container .jvectormap-zoomin {
   right: 45px;
+}
+
+
+/* Custom Dark Theme for SweetAlert2 */
+.swal2-modal {
+  background-color: #2c2c2c; /* Dark background */
+  color: #fff; /* White text */
+}
+
+.swal2-title {
+  color: #ffffff; /* Neon green title */
+}
+
+.swal2-popup {
+  border: 1px solid #1a1a1a; /* Neon green border */
+}
+
+.swal2-styled.swal2-confirm {
+  background-color: #1453da; /* Darker background for buttons */
+  color: #ffffff; /* Neon green text for buttons */
+  border: none;
+}
+
+.swal2-styled.swal2-cancel {
+  background-color: #333; /* Dark background for cancel button */
+  color: #fff; /* White text for cancel button */
+  border: none;
+}
+
+.swal2-styled:focus {
+  box-shadow: 0 0 3pt 2pt #76ff03; /* Neon green focus ring */
 }
