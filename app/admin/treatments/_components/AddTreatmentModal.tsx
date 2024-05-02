@@ -661,6 +661,7 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                             placeholder="Select duration"
                                             {...register("duration_type", { required: true })}
                                         >
+                                            <SelectItem key={"minutes"} value="minutes">minutes</SelectItem>
                                             <SelectItem key={"day"} value="day">day</SelectItem>
                                             <SelectItem key={"days"} value="days">days</SelectItem>
                                             <SelectItem key={"week"} value="week">week</SelectItem>

@@ -762,10 +762,11 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             labelPlacement="outside"
                                             {...register("duration_type", { required: true })}
                                         >
+                                            <SelectItem key={"minutes"} value="minutes">minutes</SelectItem>
                                             <SelectItem key={"day"} value="day">day</SelectItem>
                                             <SelectItem key={"days"} value="days">days</SelectItem>
                                             <SelectItem key={"week"} value="week">week</SelectItem>
-                                            <SelectItem key={"weeks"} value="weeks">Weeks</SelectItem>
+                                            <SelectItem key={"weeks"} value="weeks">weeks</SelectItem>
                                             <SelectItem key={"month"} value="month">month</SelectItem>
                                             <SelectItem key={"months"} value="months">months</SelectItem>
                                             {/* Add other options as needed */}
