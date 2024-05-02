@@ -5,7 +5,7 @@ import React from "react";
 const columns = [
   // { name: "ID", uid: "id" },
   { name: "Name", uid: "name", sortable: true },
-  { name: "Short Name", uid: "short_name", sortable: true },
+  // { name: "Short Name", uid: "short_name", sortable: true },
   { name: "Duration", uid: "duration", sortable: true },
   { name: "Price", uid: "actual_course_price", sortable: true },
   { name: "Total price", uid: "course_price", sortable: true },
@@ -24,7 +24,7 @@ const courses = [
   {
     id: "3bad2a46-79a9-44e4-9311-6d42c389b174",
     name: "BASICS OF AYURVEDA AND BEAUTY THERAPY",
-    short_name: "BABT",
+    // short_name: "BABT",
     description: "Ayurveda Course",
     location: "Chennai",
     duration: 2,

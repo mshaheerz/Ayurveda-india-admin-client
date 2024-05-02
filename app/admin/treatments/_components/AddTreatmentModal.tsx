@@ -65,6 +65,13 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
     const removeTheoryModule = async (index: number, id: any) => {
 
         if (mode === "edit") {
+
+            if (!id) {
+                const updatedModules = [...modules];
+                updatedModules.splice(index, 1);
+                setModules(updatedModules);
+                return ""
+            }
             try {
 
                 const formData = new FormData()
@@ -791,10 +798,10 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
                                         }
 
                                         {
-                                            mode == "edit" || mode == "add" && (
+                                            (mode == "edit" || mode == "add" )&& (
                                                 <div className="flex justify-center items-center">
                                                     {
-                                                        modules.length === 0 && (<Button size="lg" className="p-12" type="button" endContent={<PlusCircleIcon color="green" />} variant="ghost" onClick={addTheoryModule}>
+                                                       ( !modules ||  modules.length === 0 )&& (<Button size="lg" className="p-12" type="button" endContent={<PlusCircleIcon color="green" />} variant="ghost" onClick={addTheoryModule}>
                                                             Add Theory Modules
                                                         </Button>)
                                                     }
@@ -849,13 +856,13 @@ function AddTreatmentModal({ isOpen, onOpen, onOpenChange, token, refresh, setRe
 
 
 
-                                                    <Input
+                                                    <Textarea
                                                         disabled={mode === 'view'}
                                                         defaultValue={module.description} // Set default value
                                                         label={`Module Description ${index + 1}`}
                                                         labelPlacement="outside"
-                                                        maxLength={256}
-                                                        pattern=".{0,256}"
+                                                        // maxLength={256}
+                                                        // pattern=".{0,256}"
                                                         value={module.description}
                                                         onChange={(e) => handleTheoryModuleChange(index, 'description', e.target.value)}
                                                     // {...register(`course_modules[${index}].description`, { required: true })}

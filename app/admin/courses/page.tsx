@@ -52,7 +52,7 @@ const publishedColorMap: Record<string, ChipProps["color"]> = {
     notpublished: "danger",
 
 }
-const INITIAL_VISIBLE_COLUMNS = ["name", "short_name", "duration", "actual_course_price", "offer_persentage", "course_price", "seats_available", "is_published", "status"];
+const INITIAL_VISIBLE_COLUMNS = ["name", "duration", "actual_course_price", "offer_persentage", "course_price", "seats_available", "is_published", "status"];
 type Course = typeof courses[0];
 
 
@@ -284,13 +284,7 @@ export default function CoursePage() {
 
                     // </User>
                 );
-            case "short_name":
-                return (
-                    <div className="flex flex-col">
-                        <p className="text-bold text-small capitalize">{truncatedValue}</p>
-                        {/* <p className="text-bold text-tiny capitalize text-default-400">{user.short_name || "no data"}</p> */}
-                    </div>
-                );
+            
             case "status":
                 return (
                     <div className="flex">
@@ -491,7 +485,6 @@ export default function CoursePage() {
                             setMode("add")
                             setFormData({
                                 name: "",
-                                short_name: "",
                                 description: "",
                                 location: "",
                                 duration: "",

@@ -4,7 +4,7 @@ import React from 'react'
 
 function SkeletonTest() {
   return (
-    <div><DashboardSkeleton /></div>
+    <div><TableSkeleton /></div>
   )
 }
 

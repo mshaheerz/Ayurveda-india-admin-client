@@ -264,7 +264,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
             "start_time_afternoon": startTimeAfternoon || "",
             "end_time_afternoon": endTimeAfternoon || "",
         }
-        forms.modules = ['goo', 'foo']
+       
         console.log(forms)
         // return ;
 
@@ -700,7 +700,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                         />
 
 
-                                        <Input
+                                        {/* <Input
                                             defaultValue={initialData.short_name}
                                             disabled={mode === 'view'}
                                             errorMessage={errors.short_name && "Short name is required"}
@@ -710,7 +710,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                             pattern=".{0,90}"
                                             type="text"
                                             {...register("short_name", { required: true })}
-                                        />
+                                        /> */}
 
                                     </div>
 
@@ -956,7 +956,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
                                                     {index >= 0 && (
                                                         <div>
-                                                            <Trash2Icon color="red" height={"20px"} className="mt-6 cursor-pointer" onClick={() => removeTheoryModule(index, module.id)} />
+                                                            <Trash2Icon color="red" height={"20px"} className="mt-6 cursor-pointer" onClick={() => removeTheoryModule(index, module?.id)} />
                                                         </div>
 
 
