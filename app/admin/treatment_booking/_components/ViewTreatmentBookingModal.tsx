@@ -1,8 +1,8 @@
 import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from '@nextui-org/react'
 import React from 'react'
 import { bookings } from '../data';
-import moment from "moment"
 import { XIcon } from 'lucide-react';
+import moment from "moment"
 interface BookingProps {
     isOpen: boolean;
     onOpen: () => void;
@@ -10,21 +10,19 @@ interface BookingProps {
     onClose: any;
     booking: any;
 }
-function ViewBookingModal({ isOpen, onOpen, onClose, booking }: BookingProps) {
-
+function ViewTreatmentBookingModal({ isOpen, onOpen, onClose, booking }: BookingProps) {
     const bookingDate = moment(booking?.booking_date);
 
     // Format the date
     const formattedDate = bookingDate.format('MMMM DD, YYYY');
-
     return (
-        <Modal
-            className='main-bro'
+        <Modal className='main-bro'
             size='full'
             isOpen={isOpen}
             onClose={onClose}
             closeButton={<div style={{ backgroundColor: 'red', padding: '5px', borderRadius: '50%' }}>
-                <XIcon size={20} color="white" /></div>}
+                <XIcon size={20} color="white" />
+            </div>}
         >
             <ModalContent>
                 {(onClose) => (
@@ -39,15 +37,16 @@ function ViewBookingModal({ isOpen, onOpen, onClose, booking }: BookingProps) {
                                 <div className='grid grid-cols-2 gap-4'>
 
                                     <div className="mb-4">
-                                        <h2 className="text-lg font-semibold mb-1">User Name</h2>
+                                        <h2 className="text-lg font-semibold mb-1">Username</h2>
                                         <p>{`${booking?.bookinguserinformations?.first_name || ""} ${booking?.bookinguserinformations?.last_name || ""}`.slice(0, 15) || "(-)"}</p>
                                     </div>
                                     <div className="mb-4">
                                         <h2 className="text-lg font-semibold mb-1">Email</h2>
                                         <p>{booking?.bookinguserinformations?.email_id || "(-)"}</p>
                                     </div>
+
                                     <div className="mb-4">
-                                        <h2 className="text-lg font-semibold mb-1">Phone Number</h2>
+                                        <h2 className="text-lg font-semibold mb-1">Phone number</h2>
                                         <p>{booking?.bookinguserinformations?.phone_number || "(-)"}</p>
                                     </div>
                                     <div className="mb-4">
@@ -69,26 +68,25 @@ function ViewBookingModal({ isOpen, onOpen, onClose, booking }: BookingProps) {
                                 </div>
                             </div>
                             <div className='border rounded-md px-5 '>
-                                <h2 className='dark:text-white text-black text-xl font-semibold py-3'>Course information</h2>
+                                <h2 className='dark:text-white text-black text-xl font-semibold py-3'>Treatment information</h2>
                                 <div className='grid grid-cols-2 gap-4'>
-                                    <div className="mb-4">
-                                        <h2 className="text-lg font-semibold mb-1">Course Name</h2>
-                                        <p>{booking?.course?.name || "(-)"}</p>
-                                    </div>
+
 
                                     <div className="mb-4">
-                                        <h2 className="text-lg font-semibold mb-1">Course Price</h2>
-                                        <p>{parseFloat(booking?.course?.actual_course_price).toFixed(2) || "(-)"}</p>
+                                        <h2 className="text-lg font-semibold mb-1">Treatment Name</h2>
+                                        <p>{booking?.treatment?.name || "(-)"}</p>
                                     </div>
-
+                                    <div className="mb-4">
+                                        <h2 className="text-lg font-semibold mb-1">Treatment Price</h2>
+                                        <p>{parseFloat(booking?.treatment?.actual_price).toFixed(2) || "(-)"}</p>
+                                    </div>
                                     <div className="mb-4">
                                         <h2 className="text-lg font-semibold mb-1">Offer percentage</h2>
-                                        <p>{parseFloat(booking?.course?.offer_persentage).toFixed(2) || "(-)"}</p>
+                                        <p>{parseFloat(booking?.treatment?.offer_persentage).toFixed(2) || "(-)"}</p>
                                     </div>
-
                                     <div className="mb-4">
                                         <h2 className="text-lg font-semibold mb-1">Total Price</h2>
-                                        <p>{parseFloat(booking?.course?.course_price).toFixed(2) || "(-)"}</p>
+                                        <p>{parseFloat(booking?.treatment?.grant_price).toFixed(2) || "(-)"}</p>
                                     </div>
 
                                 </div>
@@ -109,4 +107,4 @@ function ViewBookingModal({ isOpen, onOpen, onClose, booking }: BookingProps) {
     )
 }
 
-export default ViewBookingModal
+export default ViewTreatmentBookingModal

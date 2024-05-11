@@ -345,7 +345,18 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                     }`}
                 >
                   <BookTextIcon width={18} height={19} fill="none" />
-                  Bookings
+                  Course Bookings
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  href="/admin/treatment_booking"
+                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${pathname.includes("treatment_booking") && "bg-graydark dark:bg-meta-4"
+                    }`}
+                >
+                  <BookTextIcon width={18} height={19} fill="none" />
+                  Treatment Bookings
                 </Link>
               </li>
               {/* <!-- Menu Item Bookings --> */}

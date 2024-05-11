@@ -32,8 +32,10 @@ import axios from "@/lib/axios";
 import { useSession } from "next-auth/react";
 import { CheckIcon, CrossIcon, CrosshairIcon, XIcon } from "lucide-react";
 import { Slide, toast } from "react-toastify";
+
 import TableSkeleton from "@/components/Skeletons/TableSkeleton";
-import ViewBookingModal from "./_components/ViewBookingModal";
+import ViewTreatmentBookingModal from "./_components/ViewTreatmentBookingModal";
+
 
 
 //global variables
@@ -47,14 +49,14 @@ const publishedColorMap: Record<string, ChipProps["color"]> = {
     notpublished: "danger",
 
 }
-const INITIAL_VISIBLE_COLUMNS = ["name", "email_id", "phone", "course_price", "course", "status"];
+const INITIAL_VISIBLE_COLUMNS = ["name", "email_id", "phone", "treatment_price", "treatment", "status"];
 type Booking = typeof bookings[0];
 
 
 
 
 // main component
-export default function BookingPage() {
+export default function TreatmentBookingPage() {
     const { data: session } = useSession()
     const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
     const [filterValue, setFilterValue] = React.useState("");
@@ -85,7 +87,7 @@ export default function BookingPage() {
     const getCourse = async () => {
         try {
             setLoading(true)
-            const { data } = await axios.get(`booking/details/?booking_type=course&booking_user_type=unknown&page=${currentPage}`, {
+            const { data } = await axios.get(`booking/details/?booking_type=treatment&booking_user_type=unknown&page=${currentPage}`, {
                 headers: {
                     Authorization: `Bearer ${session?.user.access_token}`
                 }
@@ -234,7 +236,6 @@ export default function BookingPage() {
             const first = a[sortDescriptor.column as keyof Booking] as string;
             const second = b[sortDescriptor.column as keyof Booking] as string;
             const cmp = first < second ? -1 : first > second ? 1 : 0;
-
             return sortDescriptor.direction === "descending" ? -cmp : cmp;
         });
     }, [sortDescriptor, items]);
@@ -256,12 +257,12 @@ export default function BookingPage() {
                     </div>
 
                 );
-            case "course":
-                const courseName = bookings.course.name || "(-)";
-                const truncatedCourseName = courseName.length > 15 ? courseName.substring(0, 15) + "..." : courseName;
+            case "treatment":
+                const treatmentName = bookings?.treatment?.name || "(-)";
+                const truncatedTreatmentName = treatmentName.length > 15 ? treatmentName.substring(0, 15) + "..." : treatmentName;
                 return (
                     <div className="flex flex-col">
-                        <p className="text-bold text-small capitalize">{truncatedCourseName}</p>
+                        <p className="text-bold text-small capitalize">{truncatedTreatmentName}</p>
                         {/* <p className="text-bold text-tiny capitalize text-default-400">{user.short_name || "no data"}</p> */}
                     </div>
                 );
@@ -324,12 +325,12 @@ export default function BookingPage() {
                     </div>
                 )
 
-            case "course_price":
-                const coursePrice = parseFloat(bookings?.course.course_price).toFixed(2) || "(-)";
-                const truncatedCoursePrice = coursePrice.length > 15 ? coursePrice.substring(0, 15) + "..." : coursePrice;
+            case "treatment_price":
+                const teratmentPrice = parseFloat(bookings?.treatment?.grant_price).toFixed(2) || "(-)";
+                const truncatedTreatmentPrice = teratmentPrice?.length > 15 ? teratmentPrice?.substring(0, 15) + "..." : teratmentPrice;
                 return (
                     <div className="flex flex-col">
-                        <p className="text-bold text-small capitalize">{truncatedCoursePrice} </p>
+                        <p className="text-bold text-small capitalize">{truncatedTreatmentPrice} </p>
 
                     </div>
                 )
@@ -363,8 +364,7 @@ export default function BookingPage() {
             setLoading(true)
             try {
 
-                console.log("true mwone")
-                const { data } = await axios.get(`/booking/details/?booking_type=course&booking_user_type=unknown&search=${value}`, {
+                const { data } = await axios.get(`/booking/details/?booking_type=treatment&booking_user_type=unknown&search=${value}`, {
                     headers: {
                         Authorization: `Bearer ${session?.user.access_token}`
                     }
@@ -542,8 +542,8 @@ export default function BookingPage() {
     //main component return
     return (
         <>
-            <Breadcrumb pageName="Course Bookings" />
-            <ViewBookingModal isOpen={isOpen} onOpen={onOpen} onOpenChange={onOpenChange} onClose={onClose} booking={viewBooking} />
+            <Breadcrumb pageName="Treatment Bookings" />
+            <ViewTreatmentBookingModal isOpen={isOpen} onOpen={onOpen} onOpenChange={onOpenChange} onClose={onClose} booking={viewBooking} />
             <div>
                 <Table
                     aria-label="Example table with custom cells, pagination and sorting"

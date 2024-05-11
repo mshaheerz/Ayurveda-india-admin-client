@@ -850,7 +850,7 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
 
                                     <div className="mb-4">
                                         {
-                                            mode == "view" && (
+                                            (mode === "view" && initialCourseModules && initialCourseModules.length > 0) && (
                                                 <>
                                                     <h1 className="text-black dark:text-white font-bold">
                                                         Theory Modules
@@ -988,8 +988,9 @@ function AddCourseModal({ isOpen, onOpen, onOpenChange, token, refresh, setRefre
                                     <div className="mb-4">
 
                                         {
-                                            mode == "view" && (
+                                          (  mode === "view" && initialPracticalModules && initialPracticalModules.length > 0 ) && (
                                                 <>
+                                                
                                                     <h1 className="text-black dark:text-white font-bold">
                                                         Practical Modules
                                                     </h1>
