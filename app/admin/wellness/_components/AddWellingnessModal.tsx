@@ -10,7 +10,9 @@ import ViewImages from "./ViewImages";
 import Swal from "sweetalert2";
 import FormLabel from "@/components/Formhelpers/FormLabel";
 import { alertStyle } from "@/app/constatnts";
-
+import { DoctorModal } from "./DoctorModal";
+import { Input as Inputs } from "@/components/ui/input";
+import { DoctorForm } from "./DoctorForm";
 interface AddCourseProps {
     isOpen: boolean;
     onOpen: () => void;
@@ -43,11 +45,9 @@ function AddWellnessModal({ isOpen, onOpen, onOpenChange, token, refresh, setRef
 
     const initialCourseModules = initialData.treatmentmodule_treatment || [];
     const [modules, setModules] = useState<Module[]>([]);
-    const [startTimeMorning, setStartTimeMorning] = useState("")
-    const [endTimeMorning, setEndTimeMorning] = useState("")
-    const [startTimeAfternoon, setStartTimeAfternoon] = useState("")
-    const [endTimeAfternoon, setEndTimeAfternoon] = useState("")
-    const [timeLineType, setTimeLineType] = useState("full_day")
+    const [doctorDetails, setDoctorDetails] = useState({})
+
+
 
 
     const handleTheoryModuleChange = (index: number, field: keyof Module, value: string) => {
@@ -149,11 +149,6 @@ function AddWellnessModal({ isOpen, onOpen, onOpenChange, token, refresh, setRef
         console.log(initialData)
         if (mode === "add") {
             setModules([])
-            setTimeLineType("full_day")
-            setStartTimeMorning("")
-            setEndTimeMorning("")
-            setStartTimeAfternoon("")
-            setEndTimeAfternoon("")
             reset({});
 
 
@@ -554,14 +549,6 @@ function AddWellnessModal({ isOpen, onOpen, onOpenChange, token, refresh, setRef
 
 
 
-
-
-
-
-
-
-
-
                                     {/* modules */}
 
                                     <div className="mb-4">
@@ -705,7 +692,7 @@ function AddWellnessModal({ isOpen, onOpen, onOpenChange, token, refresh, setRef
                                                     <h1 className="text-black dark:text-white font-bold ">
                                                         Edit Images
                                                     </h1>
-                                                    <PhotosEditor setRefresh={setRefresh} authToken={token} images={initialData?.images}wellnessId={initialData?.id} />
+                                                    <PhotosEditor setRefresh={setRefresh} authToken={token} images={initialData?.images} wellnessId={initialData?.id} />
                                                 </div>
 
                                             </>
@@ -743,6 +730,48 @@ function AddWellnessModal({ isOpen, onOpen, onOpenChange, token, refresh, setRef
 
 
                                     </div>
+
+
+                                    {
+
+                                        mode === "edit" && (
+                                            <div>
+                                                <h3>services</h3>
+
+                                                <div className="flex w-full flex-wrap md:flex-nowrap gap-4 pb-5">
+                                                    {/* <Input
+                                                        value={initialData.services.name}
+                                                        label={<FormLabel label="name" symbolEnable={true} />}
+                                                        labelPlacement="outside"
+                                                        placeholder=""
+                                                        type="text"
+                                                        maxLength={256}
+                                                        pattern=".{0,256}"
+
+                                                    />
+
+                                                    <Input
+                                                        value={initialData.services.name}
+                                                        label={<FormLabel label="name" symbolEnable={true} />}
+                                                        labelPlacement="outside"
+                                                        
+                                                        placeholder=""
+                                                        type="text"
+                                                        maxLength={256}
+                                                        pattern=".{0,256}"
+
+                                                    /> */}
+
+                                                    
+                                                </div>
+
+<DoctorForm mode={mode} initialData={initialData} />
+                                            </div>
+
+
+
+                                        )
+                                    }
 
                                     {/* Add a submit button to the form */}
                                     {/* <Button type="submit" color="primary">Add</Button> */}
