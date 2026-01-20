@@ -16,7 +16,7 @@ export const DoctorForm = ({ mode, initialData }: formProps) => {
     const [selectedFile, setSelectedFile] = useState(null);
 
 
-    const handleFileChange = (e) => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files[0];
         if (file) {
           setSelectedFile(file);
@@ -27,7 +27,7 @@ export const DoctorForm = ({ mode, initialData }: formProps) => {
         }
       };
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setDoctorDetails((prevDetails) => ({
             ...prevDetails,

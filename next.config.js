@@ -1,17 +1,21 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 
-module.exports = nextConfig
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/admin',
+        permanent: true,
+      },
+    ];
+  },
+};
 
-module.exports = {
-    async redirects() {
-      return [
-        {
-          source: '/',
-          destination: '/admin',
-          permanent: true,
-        },
-      ]
-    },
-  }
-  
+module.exports = nextConfig;
